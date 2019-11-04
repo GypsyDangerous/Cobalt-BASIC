@@ -6,4 +6,4 @@ working, basic programming language interpreted by python
  - **basic.py** 
         - Contains all the code the actual programming language, including the `lexer`, `parser`, and `interpreter`
  - **string_with_arrows.py**
-        - Contains a single method, `string_with_arrows`, for inserting `^` characters where an error appears in the my programming language
+        - Contains a single method called `string_with_arrows`, for inserting `^` characters where an error appears in my programming language
