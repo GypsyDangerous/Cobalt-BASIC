@@ -1036,6 +1036,8 @@ class Interpreter:
 
 
 global_symbol_table = SymbolTable()
+
+# Predefined global variable
 global_symbol_table.set("True", Number(1))
 global_symbol_table.set("False", Number(0))
 global_symbol_table.set("Null", Number(0))
