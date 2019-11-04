@@ -1,5 +1,5 @@
 ##############################################################################################
-# CONSTANTS
+# IMPORTS
 ##############################################################################################
 
 from string_with_arrows import *
@@ -27,7 +27,7 @@ KEYWORDS = [
 TT_INT = "INT"
 TT_FLOAT = "FLOAT"
 TT_PLUS = "PLUS"
-TT_IDENTIFER = "IDENTFIER"
+TT_IDENTIFER = "IDENTFIER" # identifier == variable name
 TT_KEYWORD = "KEYWORD"
 TT_MINUS = "MINUS"
 TT_MUL = "MUL"
@@ -257,7 +257,7 @@ class Lexer:
 				raise Exception()
 		except:
 			token = (Token(tt_1, pos_start = self.pos))
-			self.advance()
+		self.advance()
 		return token
 
 	def make_greater_than(self):
