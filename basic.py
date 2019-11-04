@@ -1,5 +1,10 @@
+##############################################################################################
+# CONSTANTS
+##############################################################################################
+
 from string_with_arrows import *
 import string
+import math
 
 ##############################################################################################
 # CONSTANTS
@@ -8,9 +13,10 @@ import string
 
 DIGITS = "0123456789."
 from string import ascii_letters as LETTERS
+LETTERS += "_:"
 LETTERS_DIGITS = LETTERS + DIGITS
 KEYWORDS = [
-	"let",  'and', 'or', 'not'
+	"let",  'and', 'or', 'not', "if", "else", "elif", ":"
 ]
 
 ##############################################################################################
@@ -252,6 +258,7 @@ class Lexer:
 				self.advance()
 				return [], IllegalCharError(pos_start, self.pos, f"'{char}' is not supported")
 
+
 		tokens.append(Token(TT_EOF, pos_start = self.pos))
 
 		return tokens, None
@@ -304,9 +311,12 @@ class Lexer:
 		id_str = ""
 		pos_start = self.pos.copy()
 
-		while self.current_char != None and self.current_char in LETTERS_DIGITS+"_":
+		while self.current_char != None and self.current_char in LETTERS_DIGITS:
 			id_str+=self.current_char
 			self.advance()
+			if id_str in KEYWORDS:
+				tok_type = TT_KEYWORD
+				return Token(tok_type, id_str, pos_start, self.pos)
 		
 		tok_type = TT_KEYWORD if id_str in KEYWORDS else TT_IDENTIFER
 		return Token(tok_type, id_str, pos_start, self.pos)
@@ -395,6 +405,16 @@ class VarAssignNode:
 		self.pos_start = name.pos_start
 		self.pos_end = value.pos_end
 
+###############################################################################################
+
+class IfNode:
+	def __init__(self, cases, else_case):
+		self.cases = cases
+		self.else_case = else_case
+
+		self.pos_start = self.cases[0][0].pos_start
+		self.pos_end = (else_case or self.cases[-1][0]).pos_end
+
 
 ##############################################################################################
 # PARESE RESULT
@@ -449,9 +469,82 @@ class Parser:
 			return res.failure(InvalidSyntaxError(
 				self.current_token.pos_start, 
 				self.current_token.pos_end, 
-				"Expected '+', '-', '*', or '/'"
+				"Expected '+', '-', '*', '/', '**', '==', '!=', '<', '>', <=', '>=', 'AND' or 'OR'"
 			))
 		return res
+
+	def if_expr(self):
+		res = ParseResult()
+
+		cases = []
+		else_case = None
+
+		if not self.current_token.matches(TT_KEYWORD, "if"):
+			return res.failure(InvalidSyntaxError(
+				self.current_token.pos_start, 
+				self.current_token.pos_end,
+				"Expected 'if'"
+			))
+
+		res.register_advancement()
+		self.advance()
+
+		condition = res.register(self.expr())
+		if res.error: return res
+
+		if not self.current_token.matches(TT_KEYWORD, ":"):
+			return res.failure(InvalidSyntaxError(
+				self.current_token.pos_start, 
+				self.current_token.pos_end,
+				"Expected ':'"
+			))
+
+		res.register_advancement()
+		self.advance()
+
+		expr = res.register(self.expr())
+		if res.error: return res
+		cases.append((condition, expr))
+
+		while self.current_token.matches(TT_KEYWORD, "elif"):
+			res.register_advancement()
+			self.advance()
+
+			condition = res.register(self.expr())
+			if res.error: return res
+
+			if not self.current_token.matches(TT_KEYWORD, ":"):
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start, 
+					self.current_token.pos_end,
+					"Expected ':'"
+				))
+			
+			res.register_advancement()
+			self.advance()
+
+			expr = res.register(self.expr())
+			if res.error: return res
+			cases.append((condition, expr))
+
+		if self.current_token.matches(TT_KEYWORD, "else"):
+			res.register_advancement()
+			self.advance()
+
+			if not self.current_token.matches(TT_KEYWORD, ":"):
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start, 
+					self.current_token.pos_end,
+					"Expected ':'"
+				))
+			
+			res.register_advancement()
+			self.advance()
+
+			else_case = res.register(self.expr())
+			if res.error: return res
+
+		return res.success(IfNode(cases, else_case))
 
 	def atom(self):
 		res = ParseResult()
@@ -482,6 +575,11 @@ class Parser:
 					self.current_token.pos_end,
 					"Expected ')'"
 				))
+
+		elif tok.matches(TT_KEYWORD, "if"):
+			if_expr = res.register(self.if_expr())
+			if res.error: return res
+			return res.success(if_expr)
 
 		return res.failure(InvalidSyntaxError(
 			self.current_token.pos_start,
@@ -549,12 +647,14 @@ class Parser:
 			var_name = self.current_token
 			res.register_advancement()
 			self.advance()
+
 			if self.current_token.type != TT_EQ:
 				return res.failure(InvalidSyntaxError(
 					self.current_token.pos_start,
 					self.current_token.pos_end,
 					"Expected variable assignment key '='"
 				))
+
 			res.register_advancement()
 			self.advance()
 			expr = res.register(self.expr())
@@ -612,11 +712,10 @@ class RTResult:
 
 
 ##############################################################################################
-# NUMBER
+# VALUES
 ##############################################################################################
 
-
-class Number:
+class Value:
 	def __init__(self, value):
 		self.value = value
 		self.set_pos()
@@ -713,6 +812,13 @@ class Number:
 
 	def __repr__(self):
 		return str(self)
+
+	def is_true(self):
+		return self.value != 0
+
+class Number(Value):
+	def __init__(self, value):
+		super().__init__(value)
 
 
 ##############################################################################################
@@ -851,6 +957,25 @@ class Interpreter:
 		
 		value = value.copy().set_pos(node.pos_start, node.pos_end)
 		return res.success(value)
+
+	def visit_IfNode(self, node, context):
+		res = RTResult()
+
+		for condition, expr in node.cases:
+			condition_value = res.register(self.visit(condition, context))
+			if res.error: return res 
+			
+			if condition_value.is_true():
+				expr_value = res.register(self.visit(expr, context))
+				if res.error: return res
+				return res.success(expr_value)
+
+		if node.else_case:
+			else_value = res.register(self.visit(node.else_case, context))
+			if res.error: return res
+			return res.success(else_value)
+
+		return res.success(None)
 		
 
 
@@ -862,6 +987,7 @@ class Interpreter:
 global_symbol_table = SymbolTable()
 global_symbol_table.set("True", Number(1))
 global_symbol_table.set("False", Number(0))
+global_symbol_table.set("Null", Number(0))
 
 def run(fn, text):
 	lexer = Lexer(fn, text)
