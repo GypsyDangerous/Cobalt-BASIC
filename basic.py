@@ -340,6 +340,8 @@ class Lexer:
 # NODES
 ##############################################################################################
 
+# Number Node
+###############################################################################################
 
 class NumberNode:
 	def __init__(self, token):
@@ -353,6 +355,8 @@ class NumberNode:
 	def __repr__(self):
 		return str(self)
 
+	
+# Binary operation Node
 ###############################################################################################
 
 class BinOpNode:
@@ -370,6 +374,7 @@ class BinOpNode:
 	def __repr__(self):
 		return str(self)
 
+# Unary operation Node 
 ###############################################################################################
 
 class UnaryOpNode:
@@ -386,6 +391,7 @@ class UnaryOpNode:
 	def __repr__(self):
 		return str(self)
 
+# Variable Access Node
 ###############################################################################################
 
 class VarAccessNode:
@@ -394,6 +400,7 @@ class VarAccessNode:
 		self.pos_start = name.pos_start
 		self.pos_end = name.pos_end
 
+# Variable Assignment Node
 ###############################################################################################
 
 class VarAssignNode:
@@ -403,6 +410,7 @@ class VarAssignNode:
 		self.pos_start = name.pos_start
 		self.pos_end = value.pos_end
 
+# If conditional Node
 ###############################################################################################
 
 class IfNode:
@@ -413,6 +421,7 @@ class IfNode:
 		self.pos_start = self.cases[0][0].pos_start
 		self.pos_end = (else_case or self.cases[-1][0]).pos_end
 
+# For Loop Node
 ###############################################################################################
 
 class ForNode:
@@ -423,6 +432,7 @@ class ForNode:
 		self.pos_start = self.cases[0][0].pos_start
 		self.pos_end = (else_case or self.cases[-1][0]).pos_end
 
+# While Loop Node
 ###############################################################################################
 
 class WhileNode:
@@ -480,6 +490,8 @@ class Parser:
 		if self.token_index < len(self.tokens):
 			self.current_token = self.tokens[self.token_index]
 		return self.current_token
+	
+###############################################################################################
 
 	def parse(self):
 		res = self.expr()
@@ -490,6 +502,8 @@ class Parser:
 				"Expected '+', '-', '*', '/', '**', '==', '!=', '<', '>', <=', '>=', 'AND' or 'OR'"
 			))
 		return res
+	
+###############################################################################################
 
 	def if_expr(self):
 		res = ParseResult()
@@ -563,6 +577,8 @@ class Parser:
 			if res.error: return res
 
 		return res.success(IfNode(cases, else_case))
+	
+###############################################################################################
 
 	def atom(self):
 		res = ParseResult()
@@ -604,9 +620,13 @@ class Parser:
 			self.current_token.pos_end,
 			"Expected int, float, variable identifier, '+', '-' or ')'"
 		))
+	
+###############################################################################################
 
 	def power(self):
 		return self.bin_op(self.atom, (TT_POW, ), self.factor)
+	
+###############################################################################################
 
 	def factor(self):
 		res = ParseResult()
@@ -621,11 +641,17 @@ class Parser:
 		
 		return self.power()
 
+###############################################################################################
+
 	def term(self):
 		return self.bin_op(self.factor, (TT_MUL, TT_DIV, TT_MOD, TT_FDIV))
 
+###############################################################################################
+
 	def arith_expr(self):
 		return self.bin_op(self.term, (TT_PLUS, TT_MINUS))
+	
+###############################################################################################
 
 	def comp_expr(self):
 		res = ParseResult()
@@ -648,7 +674,8 @@ class Parser:
 		))
 		return res.success(node)
 
-
+###############################################################################################
+	
 	def expr(self):
 		res = ParseResult()
 
@@ -688,6 +715,8 @@ class Parser:
 				"Expected 'let', int, float, identifier, '+', '-', or '('"
 			))
 		return res.success(node)
+
+###############################################################################################
 
 	def bin_op(self, func, ops, func_b=None):
 		func_b = func_b or func
@@ -748,6 +777,7 @@ class Value:
 		self.context = context
 		return self
 
+# Binary Operations 
 ###############################################################################################
 
 	def added_to(self, other):
@@ -816,6 +846,9 @@ class Value:
 		if isinstance(other, Number):
 			return Number(int(self.value or other.value)).set_context(self.context), None
 
+# Unary Operations 
+###############################################################################################
+		
 	def notted(self):
 		return Number(1 if self.value == 0 else 0).set_context(self.context), None
 
