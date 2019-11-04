@@ -16,7 +16,7 @@ from string import ascii_letters as LETTERS
 LETTERS += "_:"
 LETTERS_DIGITS = LETTERS + DIGITS
 KEYWORDS = [
-	"let",  'and', 'or', 'not', "if", "else", "elif", ":"
+	"let",  'and', 'or', 'not', "if", "else", "elif", ":", "for", "while", "to", "step"
 ]
 
 ##############################################################################################
@@ -312,11 +312,12 @@ class Lexer:
 		pos_start = self.pos.copy()
 
 		while self.current_char != None and self.current_char in LETTERS_DIGITS:
-			id_str+=self.current_char
-			self.advance()
-			if id_str in KEYWORDS:
+			if len(id_str) > 0 and self.current_char == ":":
 				tok_type = TT_KEYWORD
 				return Token(tok_type, id_str, pos_start, self.pos)
+			id_str+=self.current_char
+			self.advance()
+				
 		
 		tok_type = TT_KEYWORD if id_str in KEYWORDS else TT_IDENTIFER
 		return Token(tok_type, id_str, pos_start, self.pos)
@@ -408,6 +409,26 @@ class VarAssignNode:
 ###############################################################################################
 
 class IfNode:
+	def __init__(self, cases, else_case):
+		self.cases = cases
+		self.else_case = else_case
+
+		self.pos_start = self.cases[0][0].pos_start
+		self.pos_end = (else_case or self.cases[-1][0]).pos_end
+
+###############################################################################################
+
+class ForNode:
+	def __init__(self, cases, else_case):
+		self.cases = cases
+		self.else_case = else_case
+
+		self.pos_start = self.cases[0][0].pos_start
+		self.pos_end = (else_case or self.cases[-1][0]).pos_end
+
+###############################################################################################
+
+class WhileNode:
 	def __init__(self, cases, else_case):
 		self.cases = cases
 		self.else_case = else_case
