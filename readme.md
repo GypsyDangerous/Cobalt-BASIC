@@ -1,4 +1,4 @@
-﻿# Custom python programming language
+# Custom python programming language
 working, basic programming language interpreted by python
 ## Files
  - **main.py** 
