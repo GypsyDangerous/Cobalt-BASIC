@@ -214,25 +214,9 @@ class Lexer:
 				tokens.append(Token(TT_MINUS, pos_start = self.pos))
 				self.advance()
 			elif self.current_char == "*":
-				try:
-					if self.current_char+self.text[self.pos.index+1] == "**":
-						self.advance()
-						tokens.append(Token(TT_POW, pos_start = self.pos))
-					else:
-						raise Exception()
-				except:
-					tokens.append(Token(TT_MUL, pos_start = self.pos))
-				self.advance()
+				tokens.append(self.make_double_token("**", TT_MUL, TT_POW))
 			elif self.current_char == "/":
-				try:
-					if self.current_char+self.text[self.pos.index+1] == "//":
-						self.advance()
-						tokens.append(Token(TT_FDIV, pos_start = self.pos))
-					else:
-						raise Exception()
-				except:
-					tokens.append(Token(TT_DIV, pos_start = self.pos))
-				self.advance()
+				tokens.append(self.make_double_token("//", TT_DIV, TT_FDIV))
 			elif self.current_char == "(":
 				tokens.append(Token(TT_LPAREN, pos_start = self.pos))
 				self.advance()
@@ -262,6 +246,19 @@ class Lexer:
 		tokens.append(Token(TT_EOF, pos_start = self.pos))
 
 		return tokens, None
+	
+	def make_double_token(self, double, tt_1, tt_2):
+		token = None
+		try:
+			if self.current_char+self.text[self.pos.index+1] == double:
+				self.advance()
+				token = (Token(tt_2, pos_start = self.pos))
+			else:
+				raise Exception()
+		except:
+			token = (Token(tt_1, pos_start = self.pos))
+			self.advance()
+		return token
 
 	def make_greater_than(self):
 		tok_type = TT_GT
