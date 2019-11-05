@@ -8,3 +8,5 @@ working, basic programming language interpreted by python
  - **string_with_arrows.py**
         - Contains a single method called `string_with_arrows`, for inserting `^` characters where an error appears in my programming language
         - Contains a single method called `string_with_arrows` for inserting `^` characters where an error appears in my programming language
+## Installation
+Since this project simply contains python files all you need to down is clone this repo, Open a terminal/shell in that directory and run the `mmain.py` file to start it.
