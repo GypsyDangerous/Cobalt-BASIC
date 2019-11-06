@@ -266,37 +266,13 @@ class Lexer:
 		return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
 
 	def make_greater_than(self):
-		tok_type = TT_GT
-		pos_start = self.pos.copy()
-		self.advance()
-		
-		if self.current_char == '=':
-			self.advance()
-			tok_type = TT_GTE
-		
-		return Token(tok_type, pos_start = pos_start, pos_end=self.pos)
+		return self.make_double_token("=", TT_GT, TT_GTE)
 
 	def make_less_than(self):
-		tok_type = TT_LT
-		pos_start = self.pos.copy()
-		self.advance()
-		
-		if self.current_char == '=':
-			self.advance()
-			tok_type = TT_LTE
-		
-		return Token(tok_type, pos_start = pos_start, pos_end=self.pos)
+		return self.make_double_token("=", TT_LT, TT_LTE)
 
 	def make_equals(self):
-		tok_type = TT_EQ
-		pos_start = self.pos.copy()
-		self.advance()
-		
-		if self.current_char == '=':
-			self.advance()
-			tok_type = TT_EE
-		
-		return Token(tok_type, pos_start = pos_start, pos_end=self.pos)
+		return self.make_double_token("=", TT_EQ, TT_EE)
 
 	def make_not_equal(self):
 		pos_start = self.pos.copy()
