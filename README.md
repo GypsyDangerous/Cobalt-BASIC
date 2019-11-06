@@ -10,3 +10,12 @@ working, basic programming language interpreted by python
         - Contains a single method called `string_with_arrows` for inserting `^` characters where an error appears in my programming language
 ## Installation
 Since this project simply contains python files all you need to down is clone this repo, Open a terminal/shell in that directory and run the `main.py` file to start it.
+## Todo
+- [ ] add functions
+- [ ] add strings
+- [ ] add lists
+- [ ] add built in functions
+- [ ] add multi-line code compatability
+- [ ] add return statement
+- [ ] add iterative for loops
+
