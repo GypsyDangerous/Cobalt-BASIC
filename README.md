@@ -22,6 +22,5 @@ Since this project simply contains python files and doesn't use any modules that
 - [ ] add iterative for loops
 
 ## credits
-The base of this code is from this [tutorial series](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) on youtube.
-I have added some of my own features and syntax. I plan to go beyond this tutorial series and add even more features as I learn
+The base of this code was written while following this [tutorial series](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) on youtube. I have added some of my own features and syntax. I plan to go beyond this tutorial series and add even more features as I learn
 
