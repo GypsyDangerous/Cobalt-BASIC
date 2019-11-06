@@ -16,7 +16,7 @@ from string import ascii_letters as LETTERS
 LETTERS += "_:"
 LETTERS_DIGITS = LETTERS + DIGITS
 KEYWORDS = [
-	"let",  'and', 'or', 'not', "if", "else", "elif", ":", "for", "while", "to", "step"
+	"let",  'and', 'or', 'not', "if", "else", "elif", ":", "for", "while", "to", "step", "def"
 ]
 
 ##############################################################################################
@@ -44,6 +44,8 @@ TT_LPAREN = "LPAREN"
 TT_RPAREN = "RPAREN"
 TT_MOD = "MOD"
 TT_EOF = "EOF"
+TT_COMMA = "COMMA"
+TT_ARROW = "ARROW"
 TT_POW = "POW"
 
 
@@ -211,12 +213,11 @@ class Lexer:
 				tokens.append(Token(TT_PLUS, pos_start = self.pos))
 				self.advance()
 			elif self.current_char == "-":
-				tokens.append(Token(TT_MINUS, pos_start = self.pos))
-				self.advance()
+				tokens.append(self.make_minus_or_arrow())
 			elif self.current_char == "*":
-				tokens.append(self.make_double_token("**", TT_MUL, TT_POW))
+				tokens.append(self.make_double_token("*", TT_MUL, TT_POW))
 			elif self.current_char == "/":
-				tokens.append(self.make_double_token("//", TT_DIV, TT_FDIV))
+				tokens.append(self.make_double_token("/", TT_DIV, TT_FDIV))
 			elif self.current_char == "(":
 				tokens.append(Token(TT_LPAREN, pos_start = self.pos))
 				self.advance()
@@ -236,6 +237,9 @@ class Lexer:
 				tokens.append(self.make_less_than())
 			elif self.current_char == ">":
 				tokens.append(self.make_greater_than())
+			elif self.current_char == ",":
+				tokens.append(Token(TT_COMMA, pos_start = self.pos))
+				self.advance()
 			else:
 				pos_start = self.pos.copy()
 				char = self.current_char
@@ -246,19 +250,20 @@ class Lexer:
 		tokens.append(Token(TT_EOF, pos_start = self.pos))
 
 		return tokens, None
+
+	def make_minus_or_arrow(self):
+		return self.make_double_token(">", TT_MINUS, TT_ARROW)
 	
 	def make_double_token(self, double, tt_1, tt_2):
-		token = None
-		try:
-			if self.current_char+self.text[self.pos.index+1] == double:
-				self.advance()
-				token = (Token(tt_2, pos_start = self.pos))
-			else:
-				raise Exception()
-		except:
-			token = (Token(tt_1, pos_start = self.pos))
+		tok_type = tt_1
+		pos_start = self.pos.copy()
 		self.advance()
-		return token
+		
+		if self.current_char == double:
+			self.advance()
+			tok_type = tt_2
+
+		return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
 
 	def make_greater_than(self):
 		tok_type = TT_GT
