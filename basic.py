@@ -78,11 +78,11 @@ class Token:
 		if pos_end:
 			self.pos_end = pos_end
 
-	def matches(self, type, value):
+	def matches(self, type_, value):
 		if not type(value) in [list, tuple]:
-			return self.type == type and self.value == value
+			return self.type == type_ and self.value == value
 		else:
-			return self.type == type and self.value in values
+			return self.type == type_ and self.value in value
 
 	def __str__(self):
 		return f"{self.type}: {self.value}" if self.value else f"{self.type}"
