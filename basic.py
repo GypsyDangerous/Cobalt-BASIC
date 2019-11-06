@@ -79,7 +79,10 @@ class Token:
 			self.pos_end = pos_end
 
 	def matches(self, type, value):
-		return self.type == type and self.value == value
+		if not type(value) in [list, tuple]:
+			return self.type == type and self.value == value
+		else:
+			return self.type == type and self.value in values
 
 	def __str__(self):
 		return f"{self.type}: {self.value}" if self.value else f"{self.type}"
@@ -1222,15 +1225,17 @@ global_symbol_table.set("False", Number(0))
 global_symbol_table.set("Null", Number(0))
 
 def run(fn: str, text: str) -> (float, Error):
+	# generate tokens from source with lexical analysis
 	lexer = Lexer(fn, text)
 	tokens, error = lexer.make_tokens()
 	if error: return None, error
 
-
+	# generate an abstract syntax tree through syntax analysis, also known as parsing the tokens
 	parser = Parser(tokens)
 	ast = parser.parse()
 	if ast.error: return None, ast.error
 
+	# interpret the abs
 	interpreter = Interpreter()
 	context = Context("<Program>")
 	context.symbol_table = global_symbol_table
