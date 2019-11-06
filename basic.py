@@ -1193,7 +1193,7 @@ global_symbol_table.set("True", Number(1))
 global_symbol_table.set("False", Number(0))
 global_symbol_table.set("Null", Number(0))
 
-def run(fn, text):
+def run(fn: str, text: str) -> (float, Error):
 	lexer = Lexer(fn, text)
 	tokens, error = lexer.make_tokens()
 	if error: return None, error
