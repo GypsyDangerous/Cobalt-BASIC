@@ -16,7 +16,19 @@ from string import ascii_letters as LETTERS
 LETTERS += "_:"
 LETTERS_DIGITS = LETTERS + DIGITS
 KEYWORDS = [
-	"let",  'and', 'or', 'not', "if", "else", "elif", ":", "for", "while", "to", "step", "def"
+	"let",  
+	'and', 
+	'or', 
+	'not', 
+	"if", 
+	"else", 
+	"elif", 
+	":",
+	"for",
+	"while",
+	"to", 
+	"step",
+	"def"
 ]
 
 ##############################################################################################
@@ -97,24 +109,28 @@ class Error:
 	def __repr__(self):
 		return str(self)
 
+# Illegal Character Error
 ###############################################################################################
 
 class IllegalCharError(Error):
 	def __init__(self, pos_start, pos_end, msg):
 		super().__init__(pos_start, pos_end, "Illegal Character", msg)
 
+# Invalid Syntax Error
 ###############################################################################################
 
 class InvalidSyntaxError(Error):
 	def __init__(self, pos_start, pos_end, msg=""):
 		super().__init__(pos_start, pos_end, "Invalid Syntax", msg)
 
+# Expected Character Error
 ###############################################################################################
 
 class ExpectedCharError(Error):
 	def __init__(self, pos_start, pos_end, msg=""):
 		super().__init__(pos_start, pos_end, "Expected Character", msg)
 
+# RunTime Error
 ###############################################################################################
 
 class RunTimeError(Error):
@@ -479,6 +495,10 @@ class Parser:
 ###############################################################################################
 
 	def parse(self):
+		'''
+		general parse method that calls all the other necessary methods
+		based on the grammar rules and the current text to parse
+		'''
 		res = self.expr()
 		if not res.error and self.current_token.type != TT_EOF:
 			return res.failure(InvalidSyntaxError(
@@ -491,6 +511,9 @@ class Parser:
 ###############################################################################################
 
 	def if_expr(self):
+		'''
+		method for parsing 'if-else' expressions
+		'''
 		res = ParseResult()
 
 		cases = []
@@ -564,6 +587,9 @@ class Parser:
 		return res.success(IfNode(cases, else_case))
 
 	def for_expr(self):
+		'''
+		method for parsing 'for loop' expressions
+		'''
 		res = ParseResult()
 
 		if not self.current_token.matches(TT_KEYWORD, "for"):
