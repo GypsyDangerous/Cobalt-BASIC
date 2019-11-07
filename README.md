@@ -1,5 +1,5 @@
-# Custom python programming language
-working, basic programming language interpreted by python
+# Cobalt BASIC
+Cobalt BASIC is a simple programming language with syntax inspired by python and javascript with an aim for readability and understandablility. It is the fastest langauge ever because it is interpreted by python, but it will get the job done for simple tasks
 ## Files
  - **main.py** 
         - Contains the shell for running programs in my programming language
