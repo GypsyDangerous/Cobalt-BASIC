@@ -458,6 +458,28 @@ class FuncDefNode:
 		self.var_name_token = var_name_token
 		self.arg_name_tokens = arg_name_tokens
 		self.body_node = body_node
+
+		if self.var_name_token:
+			self.pos_start = self.var_name_token.pos_start
+		elif len(arg_name_tokens) > 0:
+			self.pos_start = self.arg_name_tokens[0].pos_start
+		else:
+			self.pos_start = self.body_node.pos_start
+		
+		self.pos_end = self.body_node.pos_end
+
+class CallNode:
+	def __init__(self, node_to_call, arg_nodes):
+		self.node_to_call = node_to_call
+		self.arg_nodes = arg_nodes
+
+		self.pos_start = node_to_call.pos_start
+
+		if len(self.arg_nodes) > 0:
+			self.pos_end = self.arg_nodes[-1].pos_end
+		else:
+			self.pos_end = self.node_to_call.pos_end
+
 		
 
 
@@ -758,6 +780,11 @@ class Parser:
 			if res.error: return res
 			return res.success(while_expr)
 
+		elif token.matches(TT_KEYWORD, "def"):
+			func_def = res.register(self.func_def())
+			if res.error: return res
+			return res.success(func_def)
+
 		return res.failure(InvalidSyntaxError(
 			self.current_token.pos_start,
 			self.current_token.pos_end,
@@ -858,6 +885,107 @@ class Parser:
 				"Expected 'let', int, float, identifier, '+', '-', or '('"
 			))
 		return res.success(node)
+
+###############################################################################################
+
+	def func_def(self):
+		res = ParseResult()
+
+		if not self.current_token.matches(TT_KEYWORD, "def"):
+			return res.failure(InvalidSyntaxError(
+				self.current_token.pos_start, 
+				self.current_token.pos_end,
+				"Expected 'def'"
+			))
+
+		res.register_advancement()
+		self.advance()
+
+		if self.current_token.type == TT_IDENTIFER:
+			var_name_token = self.current_token
+			res.register_advancement()
+			self.advance()
+			if self.current_token.type != TT_LPAREN:
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start,
+					self.current_token.pos_end,
+					"Expected '('"
+				))
+		else:
+			var_name_token = None
+			if self.current_token.type != TT_LPAREN:
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start,
+					self.current_token.pos_end,
+					"Expected identfier or '('"
+				))
+		
+		res.register_advancement()
+		self.advance()
+
+		arg_name_tokens = []
+
+		if self.current_token.type == TT_IDENTIFER:
+			arg_name_tokens.append(self.current_token)
+			res.register_advancement()
+			self.advance()
+
+			while self.current_token.type == TT_COMMA:
+				res.register_advancement()
+				self.advance()
+
+				if self.current_token.type != TT_IDENTIFER:
+					return res.failure(InvalidSyntaxError(
+						self.current_token.pos_start,
+						self.current_token.pos_end,
+						"Expected identfier"
+					))
+				
+				arg_name_tokens.append(self.current_token)
+				res.register_advancement()
+				self.advance()
+
+			if self.current_token.type != TT_RPAREN:
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start,
+					self.current_token.pos_end,
+					"Expected ',' or ')'"
+				))
+		else:
+			if self.current_token.type != TT_RPAREN:
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start,
+					self.current_token.pos_end,
+					"Expected 'identifier' or ')'"
+				))
+
+		res.register_advancement()
+		self.advance()
+
+		if self.current_token.type != TT_ARROW:
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start,
+					self.current_token.pos_end,
+					"Expected '->'"
+				))
+			
+		res.register_advancement()
+		self.advance()
+
+		node_to_return = res.register(self.expr())
+		if res.error: return res
+
+		return res.success(FuncDefNode(
+			var_name_token,
+			arg_name_tokens,
+			node_to_return
+		))
+
+
+
+
+
+
 
 ###############################################################################################
 
