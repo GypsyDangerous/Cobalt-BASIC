@@ -449,6 +449,10 @@ class WhileNode:
 		self.pos_start = condition_node.pos_start
 		self.pos_end = body_node.pos_end
 
+class FuncDefNode:
+	def __init(self, var_name_token, arg_name_tokens, body_node):
+		pass
+
 
 ##############################################################################################
 # PARESE RESULT
