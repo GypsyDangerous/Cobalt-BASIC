@@ -10,7 +10,10 @@ Cobalt BASIC is a simple programming language with syntax inspired by python and
         - Contains a single method called `string_with_arrows` for inserting `^` characters where an error appears in my programming language
 
 ## Installation
-Since this project simply contains python files and doesn't use any modules that don't come with python all you need to down is clone this repo, Open a terminal/shell in that directory and run the `main.py` file to start it.
+Currently this project can be run from any python environmment with no special installations, all you need to is
+- clone this repo
+- cd into the directory for the repo
+- run `main.py` from your preffered python executor
 
 ## Todo list
 - [ ] add functions
