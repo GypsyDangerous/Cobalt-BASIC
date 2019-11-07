@@ -11,9 +11,9 @@ Cobalt BASIC is a simple programming language with syntax inspired by python and
 
 ## Installation
 Currently this project can be run from any python environmment with no special installations, all you need to is
-1 clone this repo
-2 cd into the directory for the repo
-3 run `main.py` from your preffered python executor
+1. clone this repo
+2. cd into the directory for the repo
+3. run `main.py` from your preffered python executor
 
 ## Todo list
 - [ ] add functions
