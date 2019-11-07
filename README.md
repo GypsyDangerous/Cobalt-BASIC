@@ -22,4 +22,8 @@ Since this project simply contains python files and doesn't use any modules that
 - [ ] add iterative for loops
 
 ## Credits
-The base of this code was written while following this [tutorial series](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) on youtube. I have added some of my own features and syntax. I plan to go beyond this tutorial series and add even more features as I learn more about this topic
+The base of this code was written while following this [tutorial series](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) on youtube. I have added some of my own features and syntax. I plan to go beyond this tutorial series and add even more features as I learn more about this topic.
+
+### saved tutorials
+- freecodecamp [article](https://www.freecodecamp.org/news/the-programming-language-pipeline-91d3f449c919/)
+- hackernoon [article](https://hackernoon.com/lets-build-a-programming-language-2612349105c6)
