@@ -362,16 +362,16 @@ class NumberNode:
 ###############################################################################################
 
 class BinOpNode:
-	def __init__(self, left_node, op_tok, right_node):
+	def __init__(self, left_node, op_token, right_node):
 		self.left_node = left_node
-		self.op_tok = op_tok
+		self.op_token = op_token
 		self.right_node = right_node
 
 		self.pos_start = left_node.pos_start
 		self.pos_end = right_node.pos_end
 	
 	def __str__(self):
-		return f"({self.left_node}, {self.op_tok}, {self.right_node})"
+		return f"({self.left_node}, {self.op_token}, {self.right_node})"
 
 	def __repr__(self):
 		return str(self)
@@ -380,15 +380,15 @@ class BinOpNode:
 ###############################################################################################
 
 class UnaryOpNode:
-	def __init__(self, op_tok, node):
-		self.op_tok = op_tok
+	def __init__(self, op_token, node):
+		self.op_token = op_token
 		self.node = node
 
-		self.pos_start = op_tok.pos_start
-		self.pos_end = op_tok.pos_end
+		self.pos_start = op_token.pos_start
+		self.pos_end = op_token.pos_end
 
 	def __str__(self):
-		return f"({self.op_tok}: {self.node})"
+		return f"({self.op_token}: {self.node})"
 	
 	def __repr__(self):
 		return str(self)
@@ -398,7 +398,7 @@ class UnaryOpNode:
 
 class VarAccessNode:
 	def __init__(self, name):
-		self.var_name_tok = name
+		self.var_name_token = name
 		self.pos_start = name.pos_start
 		self.pos_end = name.pos_end
 
@@ -407,7 +407,7 @@ class VarAccessNode:
 
 class VarAssignNode:
 	def __init__(self, name, value):
-		self.var_name_tok = name
+		self.var_name_token = name
 		self.value_node = value
 		self.pos_start = name.pos_start
 		self.pos_end = value.pos_end
@@ -427,8 +427,8 @@ class IfNode:
 ###############################################################################################
 
 class ForNode:
-	def __init__(self, var_name_tok, start_value_node, end_value_node, step_value_node, body_node):
-		self.var_name_token = var_name_tok
+	def __init__(self, var_name_token, start_value_node, end_value_node, step_value_node, body_node):
+		self.var_name_token = var_name_token
 		self.start_value_node = start_value_node
 		self.end_value_node = end_value_node
 		self.step_value_node = step_value_node
@@ -449,9 +449,16 @@ class WhileNode:
 		self.pos_start = condition_node.pos_start
 		self.pos_end = body_node.pos_end
 
+
+# Function Definition Node
+###############################################################################################
+
 class FuncDefNode:
 	def __init(self, var_name_token, arg_name_tokens, body_node):
-		pass
+		self.var_name_token = var_name_token
+		self.arg_name_tokens = arg_name_tokens
+		self.body_node = body_node
+		
 
 
 ##############################################################################################
@@ -708,19 +715,19 @@ class Parser:
 
 	def atom(self):
 		res = ParseResult()
-		tok = self.current_token
+		token = self.current_token
 
-		if tok.type in (TT_INT, TT_FLOAT):
+		if token.type in (TT_INT, TT_FLOAT):
 			res.register_advancement()
 			self.advance()
-			return res.success(NumberNode(tok))
+			return res.success(NumberNode(token))
 
-		if tok.type == TT_IDENTIFER:
+		if token.type == TT_IDENTIFER:
 			res.register_advancement()
 			self.advance()
-			return res.success(VarAccessNode(tok))
+			return res.success(VarAccessNode(token))
 
-		elif tok.type == TT_LPAREN:
+		elif token.type == TT_LPAREN:
 			res.register_advancement()
 			self.advance()
 			expr = res.register(self.expr())
@@ -736,17 +743,17 @@ class Parser:
 					"Expected ')'"
 				))
 
-		elif tok.matches(TT_KEYWORD, "if"):
+		elif token.matches(TT_KEYWORD, "if"):
 			if_expr = res.register(self.if_expr())
 			if res.error: return res
 			return res.success(if_expr)
 
-		elif tok.matches(TT_KEYWORD, "for"):
+		elif token.matches(TT_KEYWORD, "for"):
 			for_expr = res.register(self.for_expr())
 			if res.error: return res
 			return res.success(for_expr)
 
-		elif tok.matches(TT_KEYWORD, "while"):
+		elif token.matches(TT_KEYWORD, "while"):
 			while_expr = res.register(self.while_expr())
 			if res.error: return res
 			return res.success(while_expr)
@@ -766,14 +773,14 @@ class Parser:
 
 	def factor(self):
 		res = ParseResult()
-		tok = self.current_token
+		token = self.current_token
 
-		if tok.type in (TT_PLUS, TT_MINUS):
+		if token.type in (TT_PLUS, TT_MINUS):
 			res.register_advancement()
 			self.advance()
 			factor = res.register(self.factor())
 			if res.error: return res
-			return res.success(UnaryOpNode(tok, factor))
+			return res.success(UnaryOpNode(token, factor))
 		
 		return self.power()
 
@@ -793,13 +800,13 @@ class Parser:
 		res = ParseResult()
 		
 		if self.current_token.matches(TT_KEYWORD, "not"):
-			op_tok = self.current_token
+			op_token = self.current_token
 			res.register_advancement()
 			self.advance()
 
 			node = res.register(self.comp_expr())
 			if res.error: return res
-			return res.success(UnaryOpNode(op_tok, node))
+			return res.success(UnaryOpNode(op_token, node))
 		
 		node = res.register(self.bin_op(self.arith_expr, (TT_EE, TT_NE, TT_LT, TT_GT, TT_LTE, TT_GTE)))
 		if res.error:
@@ -861,12 +868,12 @@ class Parser:
 		if res.error: return res
 
 		while self.current_token.type in ops or (self.current_token.type, self.current_token.value) in ops:
-			op_tok = self.current_token
+			op_token = self.current_token
 			res.register_advancement()
 			self.advance()
 			right = res.register(func_b())
 			if res.error: return res
-			left = BinOpNode(left, op_tok, right)
+			left = BinOpNode(left, op_token, right)
 
 		return res.success(left)
 
@@ -1069,35 +1076,35 @@ class Interpreter:
 		error = None
 		right = res.register(self.visit(node.right_node, context))
 		if res.error: return res
-		if node.op_tok.type == TT_PLUS:
+		if node.op_token.type == TT_PLUS:
 			result, error = left.added_to(right)
-		elif node.op_tok.type == TT_MINUS:
+		elif node.op_token.type == TT_MINUS:
 			result, error = left.subbed_by(right)
-		elif node.op_tok.type == TT_DIV:
+		elif node.op_token.type == TT_DIV:
 			result, error = left.dived_by(right)
-		elif node.op_tok.type == TT_MUL:
+		elif node.op_token.type == TT_MUL:
 			result, error = left.multed_by(right)
-		elif node.op_tok.type == TT_POW:
+		elif node.op_token.type == TT_POW:
 			result, error = left.raised_to(right)
-		elif node.op_tok.type == TT_MOD:
+		elif node.op_token.type == TT_MOD:
 			result, error = left.modded_to(right)
-		elif node.op_tok.type == TT_FDIV:
+		elif node.op_token.type == TT_FDIV:
 			result, error = left.floor_dived_to(right)
-		elif node.op_tok.type == TT_EE:
+		elif node.op_token.type == TT_EE:
 			result, error = left.get_comparison_eq(right)
-		elif node.op_tok.type == TT_NE:
+		elif node.op_token.type == TT_NE:
 			result, error = left.get_comparison_ne(right)
-		elif node.op_tok.type == TT_LT:
+		elif node.op_token.type == TT_LT:
 			result, error = left.get_comparison_lt(right)
-		elif node.op_tok.type == TT_GT:
+		elif node.op_token.type == TT_GT:
 			result, error = left.get_comparison_gt(right)
-		elif node.op_tok.type == TT_LTE:
+		elif node.op_token.type == TT_LTE:
 			result, error = left.get_comparison_lte(right)
-		elif node.op_tok.type == TT_GTE:
+		elif node.op_token.type == TT_GTE:
 			result, error = left.get_comparison_gte(right)
-		elif node.op_tok.matches(TT_KEYWORD, 'and'):
+		elif node.op_token.matches(TT_KEYWORD, 'and'):
 			result, error = left.anded_by(right)
-		elif node.op_tok.matches(TT_KEYWORD, 'or'):
+		elif node.op_token.matches(TT_KEYWORD, 'or'):
 			result, error = left.ored_by(right)
 
 		if error:
@@ -1110,9 +1117,9 @@ class Interpreter:
 		num = res.register(self.visit(node.node, context))
 		if res.error: return res
 		error = None
-		if node.op_tok.type == TT_MINUS:
+		if node.op_token.type == TT_MINUS:
 			num, error = num.multed_by(Number(-1))
-		elif node.op_tok.matches(TT_KEYWORD, 'not'):
+		elif node.op_token.matches(TT_KEYWORD, 'not'):
 			num, error = num.notted()
 		
 		if error:
@@ -1122,7 +1129,7 @@ class Interpreter:
 
 	def visit_VarAssignNode(self, node, context):
 		res = RTResult()
-		var_name = node.var_name_tok.value
+		var_name = node.var_name_token.value
 		value = res.register(self.visit(node.value_node, context))
 		if res.error: return res
 		
@@ -1131,7 +1138,7 @@ class Interpreter:
 
 	def visit_VarAccessNode(self, node, context):
 		res = RTResult()
-		var_name = node.var_name_tok.value
+		var_name = node.var_name_token.value
 		value = context.symbol_table.get(var_name)
 
 		if value == None:
