@@ -1,13 +1,13 @@
 # Cobalt BASIC
 Cobalt BASIC is a simple programming language with syntax inspired by python and javascript with an aim for readability and understandablility. It is the fastest langauge ever because it is interpreted by python, but it will get the job done for simple tasks
 ## Files
- - **main.py** 
-        - Contains the shell for running programs in my programming language
+ ### main.py 
+ - Contains the shell for running programs in my programming language
  - **basic.py** 
         - Contains all the code the actual programming language, including the `lexer`, `parser`, and `interpreter`
  - **string_with_arrows.py**
         - Contains a single method called `string_with_arrows`, for inserting `^` characters where an error appears in my programming language
-- **Token.py** -
+- **Token.py** 
         - Contains the Token class and all token type constants used in the language
         
 
