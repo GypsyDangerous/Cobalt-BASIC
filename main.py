@@ -1,7 +1,7 @@
 import basic
 
 print('''
-Welcome to "Onyx BASIC", This is a simple programming language created in python.
+Welcome to "Cobalt BASIC", This is a simple programming language created in python.
 It has very similar syntax to python and javascript because they are my two favorite languages.
 The mechanics of the language are very similar to the BASIC programmming language, hence the name.
 Variables are declared with let or var then the variable name, using let is no different from using var,
