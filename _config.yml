@@ -1,1 +1,6 @@
+# --- Site Settings ---
+
+# The site's title.
+title: Cobalt Basic
+
 theme: jekyll-theme-hacker
