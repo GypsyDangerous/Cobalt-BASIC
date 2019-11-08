@@ -599,7 +599,9 @@ global_symbol_table = SymbolTable()
 global_symbol_table.set("True", Number(1))
 global_symbol_table.set("False", Number(0))
 global_symbol_table.set("Null", Number(0))
-global_symbol_table.set("Pi", Number(math.pi))
+global_symbol_table.set("PI", Number(math.pi))
+global_symbol_table.set("TWO_PI", Number(math.pi*2))
+global_symbol_table.set("HALF_PI", Number(math.pi/2))
 
 def run(fn: str, text: str) -> (float, Error):
 	# generate tokens from source with lexical analysis
