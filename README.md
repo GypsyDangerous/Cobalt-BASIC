@@ -1,6 +1,6 @@
 # Cobalt BASIC
 <html>
- <img src="icon.png" width=50 height=50 alt="Icon"/>
+ <a href="gypsydangerous.github.io/Cobalt-Basic><img src="icon.png" width=50 height=50 alt="Icon"/></a>
 </html>
 
 Cobalt BASIC is a simple programming language with syntax inspired by python and javascript with an aim for readability and understandablility. It is the fastest langauge ever because it is interpreted by python, but it will get the job done for simple tasks
