@@ -2,6 +2,7 @@ from Lexer import *
 from Errors import *
 from Token import *
 from Nodes import *
+from Global_variables import *
 
 ##############################################################################################
 # PARESE RESULT
