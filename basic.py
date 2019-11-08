@@ -7,6 +7,7 @@ import string
 import math
 from Token import *
 from Errors import *
+from Lexer import *
 
 ##############################################################################################
 # CONSTANTS
