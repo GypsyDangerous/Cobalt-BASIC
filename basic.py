@@ -9,6 +9,7 @@ from Token import *
 from Errors import *
 from Lexer import *
 from Nodes import *
+from Parser import *
 
 ##############################################################################################
 # CONSTANTS
