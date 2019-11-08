@@ -309,13 +309,19 @@ class Lexer:
 	def make_identifier(self):
 		id_str = ""
 		pos_start = self.pos.copy()
-
+		colon_next = False
 		while self.current_char != None and self.current_char in LETTERS_DIGITS:
-			if len(id_str) > 0 and self.current_char == ":":
-				tok_type = TT_KEYWORD
-				return Token(tok_type, id_str, pos_start, self.pos)
+			try:
+				if self.text[self.pos.index+1] == ":":
+					colon_next = True
+				else:
+					raise Exception()
+			except:
+				pass
+
 			id_str+=self.current_char
 			self.advance()
+			if colon_next: break
 				
 		
 		tok_type = TT_KEYWORD if id_str in KEYWORDS else TT_IDENTIFER
