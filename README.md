@@ -25,6 +25,7 @@ Currently this project can be run from any python environmment with no special i
 - [ ] add iterative for loops
 - [ ] add default arguments to functions
 - [ ] add args and kwargs to functions
+- [ ] improve anonymous functions
 
 ## Credits
 The base of this code was written while following this [tutorial series](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) on youtube. I have added some of my own features and syntax. I plan to go beyond this tutorial series and add even more features as I learn more about this topic.
