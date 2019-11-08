@@ -16,7 +16,7 @@ Currently this project can be run from any python environmment with no special i
 3. run `main.py` from your preffered python executor
 
 ## Todo list
-- [ ] add functions
+- [x] add functions
 - [ ] add strings
 - [ ] add lists
 - [ ] add built in functions
