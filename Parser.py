@@ -1,6 +1,7 @@
 from Lexer import *
 from Errors import *
 from Token import *
+from Nodes import *
 
 ##############################################################################################
 # PARESE RESULT
