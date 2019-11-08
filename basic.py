@@ -67,28 +67,6 @@ class Position:
 	def col(self):
 		return self.col_num
 
-##############################################################################################
-# RUNTIME RESULT
-##############################################################################################
-
-
-class RTResult:
-	def __init__(self):
-		self.value = None
-		self.error = None
-
-	def register(self, res):
-		if res.error: self.error = res.error
-		return res.value
-	
-	def success(self, val):
-		self.value = val
-		return self
-
-	def failure(self, error):
-		self.error = error
-		return self
-
 
 ##############################################################################################
 # VALUES
@@ -387,6 +365,28 @@ class SymbolTable:
 
 
 
+##############################################################################################
+# RUNTIME RESULT
+##############################################################################################
+
+
+class RTResult:
+	def __init__(self):
+		self.value = None
+		self.error = None
+
+	def register(self, res):
+		if res.error: self.error = res.error
+		return res.value
+	
+	def success(self, val):
+		self.value = val
+		return self
+
+	def failure(self, error):
+		self.error = error
+		return self
+		
 ##############################################################################################
 # INTERPRETER
 ##############################################################################################
