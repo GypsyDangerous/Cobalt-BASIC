@@ -276,15 +276,7 @@ class Lexer:
 		return self.make_double_token(">", TT_MINUS, TT_ARROW)
 	
 	def make_double_token(self, double, tt_1, tt_2):
-		tok_type = tt_1
-		pos_start = self.pos.copy()
-		self.advance()
-		
-		if self.current_char == double:
-			self.advance()
-			tok_type = tt_2
-
-		return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
+		return self.make_triple_token(double, double, tt_1, tt_2, tt_2)
 
 	def make_triple_token(self, first, second, tt_1, tt_2, tt_3):
 		token_type = tt_1
@@ -1605,6 +1597,7 @@ global_symbol_table = SymbolTable()
 global_symbol_table.set("True", Number(1))
 global_symbol_table.set("False", Number(0))
 global_symbol_table.set("Null", Number(0))
+global_symbol_table.set("Pi", Number(math.pi))
 
 def run(fn: str, text: str) -> (float, Error):
 	# generate tokens from source with lexical analysis
