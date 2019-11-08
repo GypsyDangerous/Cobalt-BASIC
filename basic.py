@@ -609,12 +609,12 @@ def run(fn: str, text: str) -> (float, Error):
 	tokens, error = lexer.make_tokens()
 	if error: return None, error
 
-	# generate an abstract syntax tree through syntax analysis, also known as parsing the tokens
+	# generate an abstract syntax tree by parsing the text, also know as syntax analysis
 	parser = Parser(tokens)
 	ast = parser.parse()
 	if ast.error: return None, ast.error
 
-	# interpret the abs
+	# interpret the ast
 	interpreter = Interpreter()
 	context = Context("<Program>")
 	context.symbol_table = global_symbol_table
