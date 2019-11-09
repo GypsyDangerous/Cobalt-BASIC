@@ -1,4 +1,3 @@
-from Global_variables import *
 class Position:
 	def __init__(self, index, line_num, col_num, fn, ftxt):
 		self.index = index
