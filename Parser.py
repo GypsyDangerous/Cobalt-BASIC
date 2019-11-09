@@ -1,5 +1,5 @@
 from Errors import *
-from Token import *
+from Global_variables import *
 from Nodes import *
 
 ##############################################################################################

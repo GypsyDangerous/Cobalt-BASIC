@@ -4,9 +4,9 @@
 
 import string
 import math
-from Lexer import *
-from Parser import *
-from Interpreter import *
+from Lexer import Lexer, Error
+from Parser import Parser
+from Interpreter import Interpreter, SymbolTable, Context, Number
 
 ##############################################################################################
 # RUN
