@@ -16,6 +16,27 @@ Cobalt BASIC is a simple programming language with syntax inspired by python and
 - Contains a single method called `string_with_arrows`, for inserting `^` characters where an error appears in my programming language
 ### Token.py 
 - Contains the Token class and all token type constants used in the language
+### Global_variables.py
+- Contains all global variable for the interpreter
+### Interpreter.py
+Contains all these classes
+- Symbol Table
+- Context
+- Value and subclass
+- RunTime Result
+- Interpreter
+### Lexer.py
+- Contains the Lexer
+### Parser.py
+Contians all these classes
+- Parse Result
+- Parser
+### Nodes.py
+- Contains all Node classes
+### Position.py
+- Contains the position class
+### Errors.py
+- Contains the Error class and all subclasses
 ---
         
 
@@ -27,7 +48,7 @@ Currently this project can be run from any python environmment with no special i
 
 ## Todo list
 - [x] add functions
-- [ ] add strings
+- [X] add strings
 - [ ] add lists
 - [ ] add built in functions
 - [ ] add multi-line code compatability
