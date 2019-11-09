@@ -1,4 +1,4 @@
-from Global_variables import *
+from Global_variables import * 
 
 ##############################################################################################
 # TOKEN
