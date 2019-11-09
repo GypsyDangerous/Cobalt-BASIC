@@ -295,6 +295,35 @@ class Function(Value):
 	def __repr__(self):
 		return str(self)
 
+class String(Value):
+	def __init__(self, value):
+		super().__init__()
+		self.value = value
+
+	def added_to(self, other):
+		if isinstance(other, String):
+			return String(self.value+other.value).set_context(self.context), None
+		else:
+			return None, Value.illegal_operation(self, other)
+
+	def multed_by(self, other):
+		if isinstance(other, Number):
+			return String(self.value*other.value).set_context(self.context), None
+		else:
+			return None, Value.illegal_operation(self, other)
+	
+	def is_true(self):
+		return len(self.value) > 0
+
+	def copy(self):
+		return String(self.value).set_pos(self.pos_start, self.pos_end).set_context(self.context)
+		
+	def __str__(self):
+		return f'"{self.value}"'
+	
+	def __repr__(self):
+		return str(self)
+
 
 ##############################################################################################
 # RUNTIME RESULT
@@ -515,3 +544,8 @@ class Interpreter:
 		return_value = res.register(value_to_call.execute(args))
 		if res.error: return res
 		return res.success(return_value)
+
+	def visit_StringNode(self, node, context):
+		return RTResult().success(
+			String(node.token.value).set_context(context).set_pos(node.pos_start, node.pos_end)
+			)

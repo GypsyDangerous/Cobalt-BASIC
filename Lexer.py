@@ -60,6 +60,8 @@ class Lexer:
 			elif self.current_char == ",":
 				tokens.append(Token(TT_COMMA, pos_start = self.pos))
 				self.advance()
+			elif self.current_char in "'\"":
+				tokens.append(self.make_string())
 			else:
 				pos_start = self.pos.copy()
 				char = self.current_char
@@ -70,6 +72,33 @@ class Lexer:
 		tokens.append(Token(TT_EOF, pos_start = self.pos))
 
 		return tokens, None
+
+	def make_string(self):
+		start_quote = self.current_char
+		str = ""
+		pos_start = self.pos.copy()
+		esc_char = False
+		esc_chars = {
+			"n": '\n',
+			't': '\t',
+			"r": "\r",
+			"b": "\b"
+		}
+		self.advance()
+		while (self.current_char != start_quote or esc_char) and self.current_char != None:
+			if esc_char:
+				str += esc_chars.get(self.current_char, self.current_char)
+				esc_char = False
+			else:
+				if self.current_char == "\\":
+					esc_char = True
+				else:
+					str += self.current_char
+			self.advance()
+			
+
+		self.advance()
+		return Token(TT_STR, str, pos_start, self.pos)
 
 	def make_minus_or_arrow(self):
 		return self.make_double_token(">", TT_MINUS, TT_ARROW)
