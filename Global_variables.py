@@ -20,7 +20,8 @@ KEYWORDS = [
 	"while",
 	"to", 
 	"step",
-	"def"
+	"def",
+	"var"
 ]
 
 ##############################################################################################
@@ -51,3 +52,5 @@ TT_COMMA = "COMMA"
 TT_ARROW = "ARROW"
 TT_POW = "POW"
 TT_STR = "STR"
+TT_LBRACKET = "LBRACKET"
+TT_RBRACKET = "RBRACKET"

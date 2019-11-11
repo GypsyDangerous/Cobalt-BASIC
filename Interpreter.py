@@ -245,6 +245,9 @@ class Number(Value):
 	def is_true(self):
 		return self.value != 0
 
+	def __eq__(self, other):
+		return self.value == other.value
+
 
 class Function(Value):
 	def __init__(self, name, body_node, arg_names):
@@ -317,9 +320,85 @@ class String(Value):
 
 	def copy(self):
 		return String(self.value).set_pos(self.pos_start, self.pos_end).set_context(self.context)
-		
+
+	def get_comparison_eq(self, other):
+		if isinstance(other, String):
+			return Number(int(self.value == other.value)), None
+		else:
+			return Number(0), None
 	def __str__(self):
 		return f'"{self.value}"'
+	
+	def __repr__(self):
+		return str(self)
+
+class List(Value):
+	def __init__(self, elements):
+		super().__init__()
+		self.elements = elements[:]
+
+	def added_to(self, other):
+		new_list = self.copy()
+		new_list.elements.append(other)
+		return new_list, None
+
+	def subbed_by(self, other):
+		if isinstance(other, Number):
+			new_list = self.copy()
+			try:
+				new_list.elements.pop(other.value)
+			except:
+				return None, RunTimeError(
+					other.pos_start,
+					other.pos_end,
+					"Invalid Index",
+					self.context
+				)
+			return new_list, None
+		else:
+			return None, Value.illegal_operation(self, other)
+
+	def dived_by(self, other):
+		if isinstance(other, Number):
+			try:
+				return self.elements[other.value], None
+			except:
+				return None, RunTimeError(
+					other.pos_start,
+					other.pos_end,
+					"Invalid Index",
+					self.context
+				)
+		else:
+			return None, Value.illegal_operation(self, other)
+
+
+	def multed_by(self, other):
+		if isinstance(other, List):
+			return List(self.elements+other.elements).set_pos(self.pos_start, self.pos_end).set_context(self.context), None
+		else:
+			return None, Value.illegal_operation(self, other)
+	
+	def is_true(self):
+		return len(self.elements) > 0
+
+	def get_comparison_eq(self, other):
+		if isinstance(other, List):
+			return Number(int(self.elements == other.elements)), None
+		else:
+			return Number(0), None
+
+	def __eq__(self, other):
+		try:
+			return self.elements == other.elements
+		except:
+			return False
+
+	def copy(self):
+		return List(self.elements).set_pos(self.pos_start, self.pos_end).set_context(self.context)
+		
+	def __str__(self):
+		return f'[{", ".join([str(x) for x in self.elements])}]'
 	
 	def __repr__(self):
 		return str(self)
@@ -468,6 +547,7 @@ class Interpreter:
 
 	def visit_ForNode(self, node, context):
 		res = RTResult()
+		elements = []
 
 		start_value = res.register(self.visit(node.start_value_node, context))
 		if res.error: return res
@@ -495,15 +575,18 @@ class Interpreter:
 			i += step_value.value
 
 			result = res.register(self.visit(node.body_node, context))
+			elements.append(result)
 			if res.error: return res
 
-		return res.success(result)
+		return res.success(
+			List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+		)
 
 
 
 	def visit_WhileNode(self, node, context):
 		res = RTResult()
-		result = None
+		elements = []
 		while True:
 			condition = res.register(self.visit(node.condition_node, context))
 			if res.error: return res
@@ -511,9 +594,12 @@ class Interpreter:
 			if not condition.is_true(): break
 
 			result = res.register(self.visit(node.body_node, context))
+			elements.append(result)
 			if res.error: return res
 
-		return result.success(result)
+		return result.success(
+			List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+		)
 
 	def visit_FuncDefNode(self, node, context):
 		res = RTResult()
@@ -549,3 +635,15 @@ class Interpreter:
 		return RTResult().success(
 			String(node.token.value).set_context(context).set_pos(node.pos_start, node.pos_end)
 			)
+
+	def visit_ListNode(self, node, context):
+		res = RTResult()
+		elements = []
+
+		for element_node in node.element_nodes:
+			elements.append(res.register(self.visit(element_node, context)))
+			if res.error: return res
+
+		return res.success(
+			List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+		)

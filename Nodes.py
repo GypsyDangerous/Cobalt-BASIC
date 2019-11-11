@@ -144,6 +144,9 @@ class FuncDefNode:
 		
 		self.pos_end = self.body_node.pos_end
 
+# Function Call Node
+###############################################################################################
+
 class CallNode:
 	def __init__(self, node_to_call, arg_nodes):
 		self.node_to_call = node_to_call
@@ -155,3 +158,12 @@ class CallNode:
 			self.pos_end = self.arg_nodes[-1].pos_end
 		else:
 			self.pos_end = self.node_to_call.pos_end
+
+
+class ListNode:
+	def __init__(self, element_nodes, pos_end, pos_start):
+		self.element_nodes = element_nodes
+
+		self.pos_start = pos_start
+		self.pos_end = pos_end
+		

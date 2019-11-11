@@ -28,9 +28,16 @@ class Lexer:
 			elif self.current_char in LETTERS:
 				tokens.append(self.make_identifier())
 			elif self.current_char in DIGITS:
-				tokens.append(self.make_number())
+				number, error = self.make_number()
+				if error:
+					return [], error
+				else:
+					tokens.append(number)
 			elif self.current_char == "+":
 				tokens.append(Token(TT_PLUS, pos_start = self.pos))
+				self.advance()
+			elif self.current_char == "^":
+				tokens.append(Token(TT_POW, pos_start = self.pos))
 				self.advance()
 			elif self.current_char == "-":
 				tokens.append(self.make_minus_or_arrow())
@@ -43,6 +50,12 @@ class Lexer:
 				self.advance()
 			elif self.current_char == ")":
 				tokens.append(Token(TT_RPAREN, pos_start = self.pos))
+				self.advance()
+			elif self.current_char == "[":
+				tokens.append(Token(TT_LBRACKET, pos_start = self.pos))
+				self.advance()
+			elif self.current_char == "]":
+				tokens.append(Token(TT_RBRACKET, pos_start = self.pos))
 				self.advance()
 			elif self.current_char == "%":
 				tokens.append(Token(TT_MOD, pos_start = self.pos))
@@ -165,7 +178,7 @@ class Lexer:
 		num_str = ""
 		dot_count = 0
 		pos_start = self.pos.copy()
-		while self.current_char and self.current_char in DIGITS:
+		while self.current_char and (self.current_char in DIGITS or self.current_char in "e-+"):
 			if self.current_char == ".":
 				if dot_count == 1: break
 				dot_count+=1
@@ -174,4 +187,21 @@ class Lexer:
 				num_str += self.current_char
 			self.advance()
 		
-		return Token(TT_INT, int(num_str), pos_start = pos_start, pos_end = self.pos) if dot_count == 0 else Token(TT_FLOAT, float(num_str), pos_start = pos_start, pos_end = self.pos)
+		if "e" in num_str:
+			e_index = num_str.index("e")
+			if num_str[-1] == "e" or num_str.count("e") > 1:
+				return None, InvalidSyntaxError(
+					pos_start,
+					self.pos,
+					"Invalid Scientific Notation"
+				)
+			exponent = int(num_str[e_index+1:])
+			try:
+				num_str = float(num_str[:e_index])*(10**exponent)
+			except:
+				num_str = int(num_str[:e_index])*(10**exponent)
+		else:
+			num_str = int(num_str) if dot_count == 0 else float(num_str)
+
+
+		return Token(TT_INT, (num_str), pos_start = pos_start, pos_end = self.pos) if dot_count == 0 else Token(TT_FLOAT, (num_str), pos_start = pos_start, pos_end = self.pos), None

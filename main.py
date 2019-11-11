@@ -13,7 +13,7 @@ Enjoy!
 ''')
 
 while True:
-    text = input("basic > ")
+    text = input("Cobalt > ")
     result, error = basic.run(__name__, text)
     if error:
         print(error)

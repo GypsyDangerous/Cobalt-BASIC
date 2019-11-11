@@ -3,7 +3,7 @@ from Global_variables import *
 from Nodes import *
 
 ##############################################################################################
-# PARESE RESULT
+# PARSE RESULT
 ##############################################################################################
 
 
@@ -69,7 +69,7 @@ class Parser:
 	def expr(self):
 		res = ParseResult()
 
-		if self.current_token.matches(TT_KEYWORD, "let"):
+		if self.current_token.matches(TT_KEYWORD, ("let", "var")):
 			res.register_advancement()
 			self.advance()
 			if self.current_token.type != TT_IDENTIFER:
@@ -259,12 +259,69 @@ class Parser:
 			if res.error: return res
 			return res.success(func_def)
 
+		elif token.type == TT_LBRACKET:
+			list_expr = res.register(self.list_expr())
+			if res.error: return res
+			return res.success(list_expr)
+
 		return res.failure(InvalidSyntaxError(
 			self.current_token.pos_start,
 			self.current_token.pos_end,
-			"Expected 'let', 'if', 'for', 'while', 'def' int, float, identifier, '+', '-', or '('"
+			"Expected 'let', 'if', 'for', 'while', 'def' int, float, identifier, '+', '-', '[', or '('"
 		))
 	
+
+	def list_expr(self):
+		res = ParseResult()
+		element_nodes = []
+		pos_start = self.current_token.pos_start.copy()
+		
+		if self.current_token.type != TT_LBRACKET:
+			return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start,
+					self.current_token.pos_end,
+					"Expected '['"
+				))
+
+		res.register_advancement()
+		self.advance()
+		if self.current_token.type == TT_RBRACKET:
+			res.register_advancement()
+			self.advance()
+		else:
+			element_nodes.append(res.register(self.expr()))
+			if res.error:
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start,
+					self.current_token.pos_end,
+					"Expected ']', 'let', 'if', 'for', 'while', 'def' int, float, identifier, '+', '-', or '('"
+				))
+			
+			while self.current_token.type == TT_COMMA:
+				res.register_advancement()
+				self.advance()
+
+				element_nodes.append(res.register(self.expr()))
+				if res.error: return res
+
+			if self.current_token.type != TT_RBRACKET:
+				return res.failure(InvalidSyntaxError(
+					self.current_token.pos_start,
+					self.current_token.pos_end,
+					"Expected ']' or ','"
+				))
+
+			res.register_advancement()
+			self.advance()
+
+		return res.success(ListNode(
+			element_nodes,
+			pos_start,
+			self.current_token.pos_end.copy()
+		))
+
+
+
 ###############################################################################################
 
 	def if_expr(self):

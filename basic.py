@@ -21,6 +21,7 @@ global_symbol_table.set("Null", Number(0))
 global_symbol_table.set("PI", Number(math.pi))
 global_symbol_table.set("TWO_PI", Number(math.pi*2))
 global_symbol_table.set("HALF_PI", Number(math.pi/2))
+global_symbol_table.set("Infinity", Number(math.inf))
 
 def run(fn: str, text: str) -> (float, Error):
 	# generate tokens from source with lexical analysis
