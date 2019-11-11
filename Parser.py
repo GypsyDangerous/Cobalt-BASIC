@@ -92,7 +92,7 @@ class Parser:
 
 			res.register_advancement()
 			self.advance()
-			expr = res.register(self.expr())
+			expr = res.register(self.expr()) 
 			if res.error: return res
 			return res.success(VarAssignNode(var_name, expr))
 
