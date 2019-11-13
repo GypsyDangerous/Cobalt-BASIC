@@ -54,3 +54,6 @@ TT_POW = "POW"
 TT_STR = "STR"
 TT_LBRACKET = "LBRACKET"
 TT_RBRACKET = "RBRACKET"
+TT_DOT = "DOT"
+
+global_symbol_table = None

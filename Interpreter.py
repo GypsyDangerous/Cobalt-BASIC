@@ -246,8 +246,15 @@ class Number(Value):
 		return self.value != 0
 
 	def __eq__(self, other):
-		return self.value == other.value
+		try:
+			return self.value == other.value
+		except:
+			return False
 
+class BaseFunction(Value):
+	def __init__(self, name):
+		super().__init__()
+		self.name = name or "<anonymous>"
 
 class Function(Value):
 	def __init__(self, name, body_node, arg_names):

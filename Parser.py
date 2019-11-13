@@ -15,6 +15,9 @@ class ParseResult:
 	
 	def register_advancement(self):
 		self.advance_count+=1
+	
+	def register_devancement(self):
+		self.advance_count = max(self.advance_count-1, 0)
 
 	def register(self, res):
 		self.advance_count += res.advance_count
@@ -48,14 +51,19 @@ class Parser:
 			self.current_token = self.tokens[self.token_index]
 		return self.current_token
 	
+	def devance(self):
+		self.token_index = max(self.token_index-1, 0)
+		self.current_token = self.tokens[self.token_index]
+		return self.current_token
+	
 ###############################################################################################
 
-	def parse(self):
+	def parse(self, gst=None):
 		'''
 		general parse method that calls all the other necessary methods
 		based on the grammar rules and the current text to parse
 		'''
-		res = self.expr()
+		res = self.expr(gst)
 		if not res.error and self.current_token.type != TT_EOF:
 			return res.failure(InvalidSyntaxError(
 				self.current_token.pos_start, 
@@ -66,7 +74,7 @@ class Parser:
 
 ###############################################################################################
 
-	def expr(self):
+	def expr(self, gst=None):
 		res = ParseResult()
 
 		if self.current_token.matches(TT_KEYWORD, ("let", "var")):
@@ -95,6 +103,28 @@ class Parser:
 			expr = res.register(self.expr()) 
 			if res.error: return res
 			return res.success(VarAssignNode(var_name, expr))
+		
+		elif self.current_token.type == TT_IDENTIFER:
+			try:
+				value = gst.get(self.current_token.value)
+				if value == None:
+					pass
+				else:
+					var_name = self.current_token
+					res.register_advancement()
+					self.advance()
+		
+					if self.current_token.type != TT_EQ:
+						res.register_devancement()
+						self.devance()
+					else:
+						res.register_advancement()
+						self.advance()
+						expr = res.register(self.expr()) 
+						if res.error: return res
+						return res.success(VarAssignNode(var_name, expr))
+			except:
+				pass
 
 		node = res.register(self.bin_op(self.comp_expr, ((TT_KEYWORD, "and"), (TT_KEYWORD, "or"))))
 

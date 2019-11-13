@@ -27,6 +27,9 @@ class Lexer:
 				self.advance() 
 			elif self.current_char in LETTERS:
 				tokens.append(self.make_identifier())
+			elif self.current_char == "." and self.next_char not in DIGITS:
+				tokens.append(Token(TT_DOT, pos_start = self.pos))
+				self.advance()
 			elif self.current_char in DIGITS:
 				number, error = self.make_number()
 				if error:
@@ -81,7 +84,7 @@ class Lexer:
 				self.advance()
 				return [], IllegalCharError(pos_start, self.pos, f"'{char}' is not supported")
 
-
+		
 		tokens.append(Token(TT_EOF, pos_start = self.pos))
 
 		return tokens, None
@@ -157,13 +160,8 @@ class Lexer:
 		pos_start = self.pos.copy()
 		colon_next = False
 		while self.current_char != None and self.current_char in LETTERS_DIGITS:
-			try:
-				if self.text[self.pos.index+1] == ":":
-					colon_next = True
-				else:
-					raise Exception()
-			except:
-				pass
+			if self.next_char == ":":
+				colon_next = True
 
 			id_str+=self.current_char
 			self.advance()
@@ -173,12 +171,20 @@ class Lexer:
 		tok_type = TT_KEYWORD if id_str in KEYWORDS else TT_IDENTIFER
 		return Token(tok_type, id_str, pos_start, self.pos)
 
+	@property
+	def prev_char(self):
+		if self.pos.index > 0:
+			return self.text[self.pos.index-1]
+		else:
+			return "1"*100
 
 	def make_number(self):
 		num_str = ""
 		dot_count = 0
 		pos_start = self.pos.copy()
 		while self.current_char and (self.current_char in DIGITS or self.current_char in "e-+"):
+			if (self.prev_char != "e" and self.current_char in "+-"):
+				break
 			if self.current_char == ".":
 				if dot_count == 1: break
 				dot_count+=1
@@ -201,7 +207,38 @@ class Lexer:
 			except:
 				num_str = int(num_str[:e_index])*(10**exponent)
 		else:
+			if "+" in num_str or "-" in num_str:
+				self.set_pos(pos_start)
+				return self.fix_number()
 			num_str = int(num_str) if dot_count == 0 else float(num_str)
 
+
+		return Token(TT_INT, (num_str), pos_start = pos_start, pos_end = self.pos) if dot_count == 0 else Token(TT_FLOAT, (num_str), pos_start = pos_start, pos_end = self.pos), None
+
+	def set_pos(self, pos):
+		self.pos = pos
+		self.current_char = self.text[self.pos.index]
+
+	@property
+	def next_char(self):
+		try:
+			return self.text[self.pos.index+1]
+		except:
+			return "1"*100
+
+	def fix_number(self):
+		num_str = ""
+		dot_count = 0
+		pos_start = self.pos.copy()
+		while self.current_char and (self.current_char in DIGITS):
+			if self.current_char == ".":
+				if dot_count == 1: break
+				dot_count+=1
+				num_str += "."
+			else:
+				num_str += self.current_char
+			self.advance()
+		
+		num_str = int(num_str) if dot_count == 0 else float(num_str)
 
 		return Token(TT_INT, (num_str), pos_start = pos_start, pos_end = self.pos) if dot_count == 0 else Token(TT_FLOAT, (num_str), pos_start = pos_start, pos_end = self.pos), None

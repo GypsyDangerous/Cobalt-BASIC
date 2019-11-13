@@ -31,7 +31,7 @@ def run(fn: str, text: str) -> (float, Error):
 
 	# generate an abstract syntax tree by parsing the text, also know as syntax analysis
 	parser = Parser(tokens)
-	ast = parser.parse()
+	ast = parser.parse(global_symbol_table)
 	if ast.error: return None, ast.error
 
 	# interpret the ast
