@@ -3,7 +3,7 @@ import basic
 
 print('''
 Welcome to "Cobalt BASIC", This is a simple programming language created in python.
-It has very similar syntax to python and javascript because they are my two favorite languages.
+It has very similar syntax to python and javascript because they are my two favorite languages, and the syntax is easy to understand.
 The mechanics of the language are very similar to the BASIC programmming language, hence the name.
 Variables are declared with let or var then the variable name, using let is no different from using var,
 I only added two variable keywords as a challenge to myself and I still don't know how to treat them 
