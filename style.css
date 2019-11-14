@@ -6,9 +6,10 @@ box-sizing: border-box
 
 iframe{
  width: 50%; 
+ height: 100%;
 }
 
 h1, h2{
- width: 100%
+ width: 100%;
  text-align: center
 }
