@@ -100,8 +100,8 @@ class Lexer:
 			"r": "\r",
 			"b": "\b"
 		}
-		self.advance()
-		while (self.current_char != start_quote or esc_char) and self.current_char != None:
+		self.advance()    
+		while (self.current_char != start_quote or esc_char) and self.current_char:
 			if esc_char:
 				str += esc_chars.get(self.current_char, self.current_char)
 				esc_char = False

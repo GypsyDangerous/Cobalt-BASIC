@@ -93,7 +93,7 @@ class Parser:
 			self.advance()
 
 			if self.current_token.type != TT_EQ:
-				expr = res.register(ParseResult(NumberNode(Token(TT_INT, 0, pos_start = self.current_token.pos_start, pos_end = self.current_token.pos_end))))
+				expr = res.register(ParseResult(NoneNode(pos_start = self.current_token.pos_start, pos_end = self.current_token.pos_end)))
 			else:
 				res.register_advancement()
 				self.advance()

@@ -119,6 +119,18 @@ class Value:
 			self.context
 		)
 
+class NoneType(Value):
+  def __init__(self):
+    super().__init__()
+
+  def copy(self):
+    return NoneType()
+  
+  def __str__(self):
+    return "None"
+  
+  def __repr__(self):
+    return str(self)
 
 class Number(Value):
 	def __init__(self, value):
@@ -149,7 +161,11 @@ class Number(Value):
 	def dived_by(self, other):
 		if isinstance(other, Number):
 			if other.value == 0:
-				return None, RunTimeError(self.pos_start, self.pos_end, "Division By Zero", self.context)
+				return None, RunTimeError(
+          self.pos_start, 
+          self.pos_end, 
+          "Division By Zero", 
+          self.context)
 			else:
 				return Number(self.value / other.value).set_context(self.context), None
 		else:
@@ -170,7 +186,11 @@ class Number(Value):
 	def floor_dived_to(self, other):
 		if isinstance(other, Number):
 			if other.value == 0:
-				return None, RunTimeError(self.pos_start, self.pos_end, "Division By Zero", self.context)
+				return None, RunTimeError(
+        self.pos_start, 
+        self.pos_end, 
+        "Division By Zero", 
+        self.context)
 			else:
 				return Number(self.value // other.value).set_context(self.context), None
 		else:
@@ -275,14 +295,16 @@ class Function(Value):
 
 		if len(args) > len(self.arg_names):
 			return res.failure(RunTimeError(
-				self.pos_start, self.pos_end,
+				self.pos_start,
+         self.pos_end,
 				f"{len(args) - len(self.arg_names)} too many args passed into '{self.name}'",
 				self.context
 			))
 		
 		if len(args) < len(self.arg_names):
 			return res.failure(RunTimeError(
-				self.pos_start, self.pos_end,
+				self.pos_start,
+         self.pos_end,
 				f"{len(self.arg_names) - len(args)} too few args passed into '{self.name}'",
 				self.context
 			))
@@ -304,7 +326,7 @@ class Function(Value):
 		return copy
 
 	def __str__(self):
-		return f"<function {self.name}>"
+		return f"<function {self.name} at {hex(id(self))}>"
 
 	def __repr__(self):
 		return str(self)
@@ -337,6 +359,7 @@ class String(Value):
 			return Number(int(self.value == other.value)), None
 		else:
 			return Number(0), None
+
 	def __str__(self):
 		return f'"{self.value}"'
 	
@@ -513,7 +536,7 @@ class Interpreter:
 			return res.success(num.set_pos(node.pos_start, node.pos_end))\
 
 	def visit_NoneNode(self, node, context):
-		return RTResult().success(None)
+		return RTResult().success(NoneType())
 
 
 	def visit_VarAssignNode(self, node, context):
