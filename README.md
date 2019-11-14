@@ -50,6 +50,7 @@ Currently this project can be run from any python environmment with no special i
 - [x] add functions
 - [X] add strings
 - [x] add lists
+- [x] fix variable reassignment
 - [ ] add built in functions
 - [ ] add multi-line code compatability
 - [ ] add return statement
