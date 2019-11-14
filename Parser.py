@@ -1,6 +1,7 @@
 from Errors import *
 from Global_variables import *
 from Nodes import *
+from Token import Token
 
 ##############################################################################################
 # PARSE RESULT
@@ -8,9 +9,9 @@ from Nodes import *
 
 
 class ParseResult:
-	def __init__(self):
+	def __init__(self, node=None):
 		self.error = None
-		self.node = None
+		self.node = node
 		self.advance_count = 0
 	
 	def register_advancement(self):
@@ -92,39 +93,32 @@ class Parser:
 			self.advance()
 
 			if self.current_token.type != TT_EQ:
-				return res.failure(InvalidSyntaxError(
-					self.current_token.pos_start,
-					self.current_token.pos_end,
-					"Expected variable assignment key '='"
-				))
+				expr = res.register(ParseResult(NumberNode(Token(TT_INT, 0, pos_start = self.current_token.pos_start, pos_end = self.current_token.pos_end))))
+			else:
+				res.register_advancement()
+				self.advance()
+				expr = res.register(self.expr()) 
 
-			res.register_advancement()
-			self.advance()
-			expr = res.register(self.expr()) 
 			if res.error: return res
 			return res.success(VarAssignNode(var_name, expr))
 		
 		elif self.current_token.type == TT_IDENTIFER:
-			try:
-				value = gst.get(self.current_token.value)
-				if value == None:
-					pass
-				else:
-					var_name = self.current_token
-					res.register_advancement()
-					self.advance()
-		
-					if self.current_token.type != TT_EQ:
-						res.register_devancement()
-						self.devance()
-					else:
-						res.register_advancement()
-						self.advance()
-						expr = res.register(self.expr()) 
-						if res.error: return res
-						return res.success(VarAssignNode(var_name, expr))
-			except:
-				pass
+			var_name = self.current_token
+
+			res.register_advancement()
+			self.advance()
+
+			if self.current_token.type != TT_EQ:
+				res.register_devancement()
+				self.devance()
+			else:
+				res.register_advancement()
+				self.advance()
+				expr = res.register(self.expr()) 
+				if res.error: return res
+				return res.success(VarReAssignNode(var_name, expr))
+
+
 
 		node = res.register(self.bin_op(self.comp_expr, ((TT_KEYWORD, "and"), (TT_KEYWORD, "or"))))
 

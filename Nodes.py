@@ -88,6 +88,15 @@ class VarAssignNode:
 		self.pos_start = name.pos_start
 		self.pos_end = value.pos_end
 
+class VarReAssignNode(VarAssignNode):
+	def __init__(self, name, value):
+		super().__init__(name, value)
+
+class NoneNode:
+	def __init__(self, pos_start, pos_end):
+		self.pos_start = pos_start
+		self.pos_end = pos_end
+
 # If conditional Node
 ###############################################################################################
 

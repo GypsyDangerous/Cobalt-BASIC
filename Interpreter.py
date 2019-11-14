@@ -19,7 +19,7 @@ class SymbolTable:
 		return value
 
 	def set(self, name, value):
-		self.symbols[name]=value
+		self.symbols[name] = value
 
 	def remove(self, name):
 		del self.symbols[name]
@@ -250,6 +250,10 @@ class Number(Value):
 			return self.value == other.value
 		except:
 			return False
+
+Number.true = Number(1)
+Number.false = Number(0)
+Number.null = Number(0)
 
 class BaseFunction(Value):
 	def __init__(self, name):
@@ -506,11 +510,35 @@ class Interpreter:
 		if error:
 			return res.failure(error)
 		else:
-			return res.success(num.set_pos(node.pos_start, node.pos_end))
+			return res.success(num.set_pos(node.pos_start, node.pos_end))\
+
+	def visit_NoneNode(self, node, context):
+		return RTResult().success(None)
+
 
 	def visit_VarAssignNode(self, node, context):
 		res = RTResult()
 		var_name = node.var_name_token.value
+		value = res.register(self.visit(node.value_node, context))
+		if res.error: return res
+		
+		context.symbol_table.set(var_name, value)
+		return res.success(value)
+
+	def visit_VarReAssignNode(self, node, context):
+		res = RTResult()
+		var_name = node.var_name_token.value
+
+		current = context.symbol_table.get(var_name)
+
+		if current == None:
+			return res.failure(RunTimeError(
+				node.pos_start,
+				node.pos_end,
+				f"'{var_name}' is not defined",
+				context
+			))
+
 		value = res.register(self.visit(node.value_node, context))
 		if res.error: return res
 		
