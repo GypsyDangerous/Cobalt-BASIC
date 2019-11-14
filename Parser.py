@@ -544,12 +544,12 @@ class Parser:
 	def func_def(self):
 		res = ParseResult()
 
-		if not self.current_token.matches(TT_KEYWORD, "def"):
-			return res.failure(InvalidSyntaxError(
-				self.current_token.pos_start, 
-				self.current_token.pos_end,
-				"Expected 'def'"
-			))
+		print("hi")
+		# 	return res.failure(InvalidSyntaxError(
+		# 		self.current_token.pos_start, 
+		# 		self.current_token.pos_end,
+		# 		"Expected 'def'"
+		# 	))
 
 		res.register_advancement()
 		self.advance()

@@ -1,6 +1,7 @@
 import basic
 
-
+print("_"*80)
+print()
 print('''
 Welcome to "Cobalt BASIC", This is a simple programming language created in python.
 It has very similar syntax to python and javascript because they are my two favorite languages, and the syntax is easy to understand.
