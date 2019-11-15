@@ -21,7 +21,19 @@ KEYWORDS = [
 	"to", 
 	"step",
 	"def",
-	"var"
+	"var",
+	"lambda",
+]
+
+CONSTANTS = [
+	"True",
+	"False",
+	"None",
+	"PI",
+	"TWO_PI",
+	"HALF_PI",
+	"Null",
+	"Infinity"
 ]
 
 ##############################################################################################

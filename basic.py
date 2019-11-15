@@ -17,7 +17,7 @@ global_symbol_table = SymbolTable()
 # Predefined global variables
 global_symbol_table.set("True", Number.true)
 global_symbol_table.set("False", Number.false)
-global_symbol_table.set("Null", Number.null)
+global_symbol_table.set("Null", NoneType())
 global_symbol_table.set("PI", Number(math.pi))
 global_symbol_table.set("TWO_PI", Number(math.pi*2))
 global_symbol_table.set("HALF_PI", Number(math.pi/2))

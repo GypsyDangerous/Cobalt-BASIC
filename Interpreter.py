@@ -76,7 +76,7 @@ class Value:
 		return None, self.illegal_operation(other)
 
 	def get_comparison_eq(self, other):
-		return None, self.illegal_operation(other)
+		return Number(int(type(self).__name__ == type(other).__name__)), None
 
 	def get_comparison_ne(self, other):
 		return None, self.illegal_operation(other)
@@ -120,17 +120,20 @@ class Value:
 		)
 
 class NoneType(Value):
-  def __init__(self):
-    super().__init__()
+	def __init__(self):
+		super().__init__()
 
-  def copy(self):
-    return NoneType()
-  
-  def __str__(self):
-    return "None"
-  
-  def __repr__(self):
-    return str(self)
+	def copy(self):
+		return NoneType()
+	
+	def __str__(self):
+		return "None"
+	
+	def __repr__(self):
+		return str(self)
+
+
+
 
 class Number(Value):
 	def __init__(self, value):
@@ -542,6 +545,14 @@ class Interpreter:
 	def visit_VarAssignNode(self, node, context):
 		res = RTResult()
 		var_name = node.var_name_token.value
+		if var_name in CONSTANTS:
+			return res.failure(
+				InvalidSyntaxError(
+					node.pos_start,
+					node.pos_end,
+					"Can't assign to keyword",
+				)
+			)
 		value = res.register(self.visit(node.value_node, context))
 		if res.error: return res
 		
@@ -551,6 +562,15 @@ class Interpreter:
 	def visit_VarReAssignNode(self, node, context):
 		res = RTResult()
 		var_name = node.var_name_token.value
+
+		if var_name in CONSTANTS:
+			return res.failure(
+				InvalidSyntaxError(
+					node.pos_start,
+					node.pos_end,
+					"Can't assign to keyword",
+				)
+			)
 
 		current = context.symbol_table.get(var_name)
 

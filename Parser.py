@@ -56,6 +56,12 @@ class Parser:
 		self.token_index = max(self.token_index-1, 0)
 		self.current_token = self.tokens[self.token_index]
 		return self.current_token
+
+	def prev_token(self):
+		try:
+			return self.tokens[self.token_index-1]
+		except:
+			return None
 	
 ###############################################################################################
 
@@ -82,6 +88,14 @@ class Parser:
 			res.register_advancement()
 			self.advance()
 			if self.current_token.type != TT_IDENTIFER:
+				if self.current_token.value in KEYWORDS:
+					return res.failure(
+						InvalidSyntaxError(
+							self.current_token.pos_start,
+							self.current_token.pos_end,
+							"Can't assign to keyword"
+						)
+					)
 				return res.failure(InvalidSyntaxError(
 					self.current_token.pos_start,
 					self.current_token.pos_end,
@@ -248,20 +262,30 @@ class Parser:
 			return res.success(VarAccessNode(token))
 
 		elif token.type == TT_LPAREN:
-			res.register_advancement()
-			self.advance()
-			expr = res.register(self.expr())
-			if res.error: return res
-			if self.current_token.type == TT_RPAREN:
+			try:
+				anon_func = self.prev_token().type in (TT_LPAREN, TT_EQ, TT_COMMA, TT_EO)
+			except:
+				anon_func = False
+			
+			if anon_func:
+				func_def = res.register(self.func_def())
+				if res.error: return res
+				return res.success(func_def)
+			else:
 				res.register_advancement()
 				self.advance()
-				return res.success(expr)
-			else:
-				return res.failure(InvalidSyntaxError(
-					self.current_token.pos_start,
-					self.current_token.pos_end,
-					"Expected ')'"
-				))
+				expr = res.register(self.expr())
+				if res.error: return res
+				if self.current_token.type == TT_RPAREN:
+					res.register_advancement()
+					self.advance()
+					return res.success(expr)
+				else:
+					return res.failure(InvalidSyntaxError(
+						self.current_token.pos_start,
+						self.current_token.pos_end,
+						"Expected ')'"
+					))
 
 		elif token.matches(TT_KEYWORD, "if"):
 			if_expr = res.register(self.if_expr())
@@ -543,16 +567,9 @@ class Parser:
 
 	def func_def(self):
 		res = ParseResult()
-
-		print("hi")
-		# 	return res.failure(InvalidSyntaxError(
-		# 		self.current_token.pos_start, 
-		# 		self.current_token.pos_end,
-		# 		"Expected 'def'"
-		# 	))
-
-		res.register_advancement()
-		self.advance()
+		if not self.current_token.type == TT_LPAREN:
+			res.register_advancement()
+			self.advance()
 
 		if self.current_token.type == TT_IDENTIFER:
 			var_name_token = self.current_token
