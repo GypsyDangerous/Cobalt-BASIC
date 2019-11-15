@@ -112,11 +112,11 @@ class Value:
 		return False
 
 	def illegal_operation(self, other=None):
-		if not other: other = self
+		other = other or self
 		return RunTimeError(
 			self.pos_start, other.pos_end,
-			'Illegal operation',
-			self.context
+			f"Illegal operation between types: '{type(self).__name__}' and '{type(other).__name__}'",
+			self.context or other.context
 		)
 
 class NoneType(Value):
@@ -124,7 +124,7 @@ class NoneType(Value):
 		super().__init__()
 
 	def copy(self):
-		return NoneType()
+		return NoneType().set_pos(self.pos_start, self.pos_end).set_context(self.context)
 	
 	def __str__(self):
 		return "None"
@@ -539,7 +539,8 @@ class Interpreter:
 			return res.success(num.set_pos(node.pos_start, node.pos_end))\
 
 	def visit_NoneNode(self, node, context):
-		return RTResult().success(NoneType())
+		print(context)
+		return RTResult().success(NoneType().set_pos(node.pos_start, node.pos_end).set_context(context))
 
 
 	def visit_VarAssignNode(self, node, context):
@@ -601,7 +602,7 @@ class Interpreter:
 				context
 			))
 		
-		value = value.copy().set_pos(node.pos_start, node.pos_end)
+		value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
 		return res.success(value)
 
 	def visit_IfNode(self, node, context):

@@ -89,6 +89,24 @@ class Lexer:
 
 		return tokens, None
 
+	@property
+	def prev_char(self):
+		if self.pos.index > 0:
+			return self.text[self.pos.index-1]
+		else:
+			return "1"*100
+
+	def set_pos(self, pos):
+		self.pos = pos
+		self.current_char = self.text[self.pos.index]
+
+	@property
+	def next_char(self):
+		try:
+			return self.text[self.pos.index+1]
+		except:
+			return "1"*10000
+
 	def make_string(self):
 		start_quote = self.current_char
 		str = ""
@@ -171,14 +189,8 @@ class Lexer:
 		tok_type = TT_KEYWORD if id_str in KEYWORDS else TT_IDENTIFER
 		return Token(tok_type, id_str, pos_start, self.pos)
 
-	@property
-	def prev_char(self):
-		if self.pos.index > 0:
-			return self.text[self.pos.index-1]
-		else:
-			return "1"*100
 
-	def make_number(self):
+	def make_number(self, digits = "e-+"):
 		num_str = ""
 		dot_count = 0
 		pos_start = self.pos.copy()
@@ -215,30 +227,5 @@ class Lexer:
 
 		return Token(TT_INT, (num_str), pos_start = pos_start, pos_end = self.pos) if dot_count == 0 else Token(TT_FLOAT, (num_str), pos_start = pos_start, pos_end = self.pos), None
 
-	def set_pos(self, pos):
-		self.pos = pos
-		self.current_char = self.text[self.pos.index]
-
-	@property
-	def next_char(self):
-		try:
-			return self.text[self.pos.index+1]
-		except:
-			return "1"*100
-
 	def fix_number(self):
-		num_str = ""
-		dot_count = 0
-		pos_start = self.pos.copy()
-		while self.current_char and (self.current_char in DIGITS):
-			if self.current_char == ".":
-				if dot_count == 1: break
-				dot_count+=1
-				num_str += "."
-			else:
-				num_str += self.current_char
-			self.advance()
-		
-		num_str = int(num_str) if dot_count == 0 else float(num_str)
-
-		return Token(TT_INT, (num_str), pos_start = pos_start, pos_end = self.pos) if dot_count == 0 else Token(TT_FLOAT, (num_str), pos_start = pos_start, pos_end = self.pos), None
+		return self.make_number("")
