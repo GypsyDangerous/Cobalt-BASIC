@@ -819,13 +819,15 @@ class Interpreter:
 		arg_names = []
 		for arg_name in node.arg_name_tokens:
 			if type(arg_name) == tuple:
-				def_token = arg_name[1]
-				if def_token.type == TT_STR:
-					def_val = String(def_token.value)
-				elif def_token.type in (TT_INT, TT_FLOAT):
-					def_val = Number(def_token.value)
-				else:
-					def_val = context.symbol_table.get(def_token.value)
+				# def_token = arg_name[1]
+				# if def_token.type == TT_STR:
+				# 	def_val = String(def_token.value)
+				# elif def_token.type in (TT_INT, TT_FLOAT):
+				# 	def_val = Number(def_token.value)
+				# else:
+				# 	def_val = context.symbol_table.get(def_token.value)
+				def_val = res.register(self.visit(arg_name[1], context))
+				if res.error: return res
 
 				arg_names.append((arg_name[0].value, def_val))
 			else:

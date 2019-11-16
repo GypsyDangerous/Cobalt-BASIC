@@ -603,7 +603,8 @@ class Parser:
 			if self.current_token.type == TT_EQ:
 				res.register_advancement()
 				self.advance()
-				default_value = self.current_token
+				default_value = self.expr()
+				
 				res.register_advancement()
 				self.advance()
 			else:
@@ -629,7 +630,8 @@ class Parser:
 				if self.current_token.type == TT_EQ:
 					res.register_advancement()
 					self.advance()
-					default_value = self.current_token
+					default_value = res.register(self.expr())
+					if res.error: return res
 				else:
 					res.register_devancement()
 					self.devance()
@@ -637,8 +639,6 @@ class Parser:
 				
 				arg_name_tokens.append((arg_name, default_value) if default_value else arg_name)
 				# arg_name_tokens.append(self.current_token)
-				res.register_advancement()
-				self.advance()
 
 			if self.current_token.type != TT_RPAREN:
 				return res.failure(InvalidSyntaxError(
