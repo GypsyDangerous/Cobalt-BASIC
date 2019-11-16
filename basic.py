@@ -28,6 +28,8 @@ global_symbol_table.set("input", BuiltInFunction("input"))
 global_symbol_table.set("clear", BuiltInFunction("clear"))
 global_symbol_table.set("int", BuiltInFunction("int"))
 global_symbol_table.set("float", BuiltInFunction("float"))
+global_symbol_table.set("list", BuiltInFunction("list"))
+
 
 def run(fn: str, text: str) -> (float, Error):
 	# generate tokens from source with lexical analysis

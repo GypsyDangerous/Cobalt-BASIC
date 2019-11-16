@@ -7,7 +7,6 @@ import os
 # SYMBOLTABLE
 ##############################################################################################
 
-
 class SymbolTable:
 	def __init__(self, parent = None):
 		self.symbols = {}
@@ -28,7 +27,6 @@ class SymbolTable:
 ##############################################################################################
 # CONTEXT
 ##############################################################################################
-
 
 class Context:
 	def __init__(self, display_name, parent=None, parent_entry_pos=None):
@@ -133,16 +131,13 @@ class NoneType(Value):
 	def __repr__(self):
 		return str(self)
 
-
-
-
 class Number(Value):
 	def __init__(self, value):
 		super().__init__()
 		self.value = value
 
 	# Binary Operations 
-###############################################################################################
+	###############################################################################################
 
 	def added_to(self, other):
 		if isinstance(other, Number):
@@ -248,8 +243,8 @@ class Number(Value):
 		else:
 			return None, Value.illegal_operation(self, other)
 
-# Unary Operations 
-###############################################################################################
+	# Unary Operations 
+	###############################################################################################
 		
 	def notted(self):
 		return Number(1 if self.value == 0 else 0).set_context(self.context), None
@@ -575,21 +570,26 @@ class BuiltInFunction(BaseFunction):
 				f"Invalid literal for float() with base 10: {val}",
 				exec_ctx
 			))
-
 	execute_float.arg_names = ["val"]
 
-
-	
-
-
-
-
-
+	def execute_list(self, exec_ctx):
+		val = exec_ctx.symbol_table.get("val")
+		try:
+			return RTResult().success(list(val.value))
+		except:
+			return RTResult().failure(
+				RunTimeError(
+					val.pos_start,
+					val.pos_end,
+					f"Type '{type(val).__name__}' is not iterable",
+					exec_ctx
+				)
+			)
+	execute_list.arg_names = ["val"]
 
 ##############################################################################################
 # RUNTIME RESULT
 ##############################################################################################
-
 
 class RTResult:
 	def __init__(self):
@@ -611,7 +611,6 @@ class RTResult:
 ##############################################################################################
 # INTERPRETER
 ##############################################################################################
-
 
 class Interpreter:
 	def visit(self, node, context):

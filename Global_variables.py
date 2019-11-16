@@ -33,7 +33,12 @@ CONSTANTS = [
 	"TWO_PI",
 	"HALF_PI",
 	"Null",
-	"Infinity"
+	"Infinity",
+	"print",
+	"input",
+	"clear",
+	"int",
+	"float"
 ]
 
 ##############################################################################################
@@ -67,5 +72,3 @@ TT_STR = "STR"
 TT_LBRACKET = "LBRACKET"
 TT_RBRACKET = "RBRACKET"
 TT_DOT = "DOT"
-
-global_symbol_table = None

@@ -596,19 +596,24 @@ class Parser:
 		arg_name_tokens = []
 
 		if self.current_token.type == TT_IDENTIFER:
+			def_args = False
+			def_arg_count = 0
 			arg_name = self.current_token
 			res.register_advancement()
 			self.advance()
 			default_value = None
 			if self.current_token.type == TT_EQ:
+				def_args = True
+				def_arg_count+=1
 				res.register_advancement()
 				self.advance()
-				default_value = self.expr()
+				default_value = res.register(self.expr())
 				
 				res.register_advancement()
 				self.advance()
-			else:
-				pass
+			if def_args:
+				res.register_devancement()
+				self.devance()
 			
 			arg_name_tokens.append((arg_name, default_value) if default_value else arg_name)
 
@@ -628,19 +633,24 @@ class Parser:
 					res.register_advancement()
 					self.advance()
 				if self.current_token.type == TT_EQ:
+					def_args = True
+					def_arg_count+=1
 					res.register_advancement()
 					self.advance()
 					default_value = res.register(self.expr())
 					if res.error: return res
 				else:
-					res.register_devancement()
-					self.devance()
+					if def_args:
+						res.register_advancement()
+						self.advance()
+						def_args = False
 
-				
 				arg_name_tokens.append((arg_name, default_value) if default_value else arg_name)
-				# arg_name_tokens.append(self.current_token)
-
+			if not def_args and def_arg_count > 0:
+				res.register_devancement()
+				self.devance()
 			if self.current_token.type != TT_RPAREN:
+				print(self.current_token)
 				return res.failure(InvalidSyntaxError(
 					self.current_token.pos_start,
 					self.current_token.pos_end,
