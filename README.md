@@ -48,14 +48,14 @@ Currently this project can be run from any python environmment with no special i
 
 ## Todo list
 - [x] add functions
-- [X] add strings
+- [x] add strings
 - [x] add lists
 - [x] fix variable reassignment
 - [ ] add built in functions
 - [ ] add multi-line code compatability
 - [ ] add return statement
 - [ ] add iterative for loops
-- [ ] add default arguments to functions
+- [x] add default arguments to functions
 - [ ] add args and kwargs to functions
 - [ ] improve anonymous functions
 - [ ] add try/except

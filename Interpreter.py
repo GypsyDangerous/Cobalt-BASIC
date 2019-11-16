@@ -1,6 +1,7 @@
 from Global_variables import *
 from Token import *
 from Errors import *
+import os
 
 ##############################################################################################
 # SYMBOLTABLE
@@ -278,62 +279,6 @@ Number.true = Number(1)
 Number.false = Number(0)
 Number.null = Number(0)
 
-class BaseFunction(Value):
-	def __init__(self, name):
-		super().__init__()
-		self.name = name or "<anonymous>"
-
-class Function(Value):
-	def __init__(self, name, body_node, arg_names):
-		super().__init__()
-		self.name = name or "<anonymous>"
-		self.body_node = body_node
-		self.arg_names = arg_names
-
-	def execute(self, args):
-		res = RTResult()
-		interpreter = Interpreter()
-		new_context = Context(self.name, self.context, self.pos_start)
-		new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
-
-		if len(args) > len(self.arg_names):
-			return res.failure(RunTimeError(
-				self.pos_start,
-         self.pos_end,
-				f"{len(args) - len(self.arg_names)} too many args passed into '{self.name}'",
-				self.context
-			))
-		
-		if len(args) < len(self.arg_names):
-			return res.failure(RunTimeError(
-				self.pos_start,
-         self.pos_end,
-				f"{len(self.arg_names) - len(args)} too few args passed into '{self.name}'",
-				self.context
-			))
-
-		for i in range(len(args)):
-			arg_name = self.arg_names[i]
-			arg_value = args[i]
-			arg_value.set_context(new_context)
-			new_context.symbol_table.set(arg_name, arg_value)
-
-		value = res.register(interpreter.visit(self.body_node, new_context))
-		if res.error: return res
-		return res.success(value)
-
-	def copy(self):
-		copy = Function(self.name, self.body_node, self.arg_names)
-		copy.set_context(self.context)
-		copy.set_pos(self.pos_start, self.pos_end)
-		return copy
-
-	def __str__(self):
-		return f"<function {self.name} at {hex(id(self))}>"
-
-	def __repr__(self):
-		return str(self)
-
 class String(Value):
 	def __init__(self, value):
 		super().__init__()
@@ -440,6 +385,206 @@ class List(Value):
 	def __repr__(self):
 		return str(self)
 
+class BaseFunction(Value):
+	def __init__(self, name):
+		super().__init__()
+		self.name = name or "<anonymous>"
+	
+	def generate_new_context(self):
+		new_context = Context(self.name, self.context, self.pos_start)
+		new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
+		return new_context
+
+	def check_args(self, arg_names, args):
+		res = RTResult()
+		default_args = sum(isinstance(i, tuple) for i in arg_names)
+		if len(args) > len(arg_names):
+			return res.failure(RunTimeError(
+				self.pos_start,
+         self.pos_end,
+				f"{len(args) - len(arg_names)} too many args passed into '{self.name}'",
+				self.context
+			))
+		
+		if len(args) < len(arg_names)-default_args:
+			return res.failure(RunTimeError(
+				self.pos_start,
+         self.pos_end,
+				f"{len(arg_names) - len(args)} too few args passed into '{self.name}'",
+				self.context
+			))
+		
+		return res.success(None)
+
+	def populate_args(self, arg_names, args, exec_ctx):
+		for i in range(len(arg_names)):
+			arg_name = arg_names[i]
+			if type(arg_name) == tuple:
+				default_value = arg_name[1]
+				arg_name = arg_name[0]
+			try:
+				arg_value = args[i]
+			except:
+				arg_value = default_value
+			arg_value.set_context(exec_ctx)
+			exec_ctx.symbol_table.set(arg_name, arg_value)
+
+	def check_and_populate_args(self, arg_names, args, exec_ctx):
+		res = RTResult()
+		res.register(self.check_args(arg_names, args))
+		if res.error: return res
+		self.populate_args(arg_names, args, exec_ctx)
+		return res.success(None)
+
+
+class Function(BaseFunction):
+	def __init__(self, name, body_node, arg_names):
+		super().__init__(name)
+		self.body_node = body_node
+		self.arg_names = arg_names
+
+	def execute(self, args):
+		res = RTResult()
+		interpreter = Interpreter()
+
+		new_context = self.generate_new_context()
+		res.register(self.check_and_populate_args(self.arg_names, args, new_context))
+		if res.error: return res
+
+		value = res.register(interpreter.visit(self.body_node, new_context))
+		if res.error: return res
+		return res.success(value)
+
+	def copy(self):
+		copy = Function(self.name, self.body_node, self.arg_names)
+		copy.set_context(self.context)
+		copy.set_pos(self.pos_start, self.pos_end)
+		return copy
+
+	def __str__(self):
+		return f"<function {self.name} at {hex(id(self))}>"
+
+	def __repr__(self):
+		return str(self)
+
+class BuiltInFunction(BaseFunction):
+	def __init__(self, name):
+		super().__init__(name)
+
+	def execute(self, args):
+		res = RTResult()
+		exec_ctx = self.generate_new_context()
+
+		method_name = f"execute_{self.name}"
+		method = getattr(self, method_name, self.no_visit_method)
+
+		res.register(self.check_and_populate_args(method.arg_names, args, exec_ctx))
+		if res.error: return res 
+
+		return_value = res.register(method(exec_ctx))
+		if res.error: return res
+		return res.success(return_value)
+
+	def copy(self):
+		copy = BuiltInFunction(self.name)
+		copy.set_context(self.context)
+		copy.set_pos(self.pos_start, self.pos_end)
+		return copy
+
+	def __str__(self):
+		return f"<Built in function {self.name} at {hex(id(self))}>"
+
+	def __repr__(self):
+		return str(self)
+
+	def no_visit_method(self):
+		raise Exception(f"No execute_{self.name} method defined")
+
+	def execute_print(self, exec_ctx):
+		print(str(exec_ctx.symbol_table.get("value")))
+		return RTResult().success(NoneType().set_context(exec_ctx))
+	execute_print.arg_names = [("value", String(""))]
+
+	def execute_print_ret(self, exec_ctx):
+		val = str(exec_ctx.symbol_table.get("value"))
+		return RTResult().success(String(val))
+	execute_print_ret.arg_names = ["value"]
+
+	def execute_input(self, exec_ctx):
+		import re
+		prompt = re.sub(r"['\"]", "", str(exec_ctx.symbol_table.get("str")))
+		text = input(prompt or "")
+		return RTResult().success(String(text))
+	execute_input.arg_names = [("str", String(""))]
+
+	def execute_input_int(self, exec_ctx):
+		import re
+		prompt = re.sub(r"['\"]", "", str(exec_ctx.symbol_table.get("str")))
+		while True:
+			try:
+				text = int(input(prompt or ""))
+				break
+			except:
+				print(f"{text} is not a number. Try Again")
+		return RTResult().success(Number(text))
+	execute_input_int.arg_names = ["str"]
+
+	def execute_clear(self, exec_ctx):
+		os.system('cls' if os.name=='nt' else 'clear')
+		return RTResult().success(NoneType())
+	execute_clear.arg_names = []
+
+	def execute_int(self, exec_ctx):
+		val = exec_ctx.symbol_table.get("val")
+		if not type(val) in (String, Number):
+			return RTResult().failure(RunTimeError(
+				val.pos_start,
+				val.pos_end,
+				"Value must Be Number or String",
+				exec_ctx
+			))
+		else:
+			try:
+				return RTResult().success(Number(int(val.value)))
+			except:
+				return RTResult().failure(RunTimeError(
+				val.pos_start,
+				val.pos_end,
+				f"Invalid literal for int() with base 10: {val}",
+				exec_ctx
+			))
+
+	execute_int.arg_names = ["val"]
+
+	def execute_float(self, exec_ctx):
+		val = exec_ctx.symbol_table.get("val")
+		if not type(val) in (String, Number):
+			return RTResult().failure(RunTimeError(
+				val.pos_start,
+				val.pos_end,
+				"Value must Be Number or String",
+				exec_ctx
+			))
+		else:
+			try:
+				return RTResult().success(Number(float(val.value)))
+			except:
+				return RTResult().failure(RunTimeError(
+				val.pos_start,
+				val.pos_end,
+				f"Invalid literal for float() with base 10: {val}",
+				exec_ctx
+			))
+
+	execute_float.arg_names = ["val"]
+
+
+	
+
+
+
+
+
 
 ##############################################################################################
 # RUNTIME RESULT
@@ -539,11 +684,10 @@ class Interpreter:
 			return res.success(num.set_pos(node.pos_start, node.pos_end))\
 
 	def visit_NoneNode(self, node, context):
-		print(context)
 		return RTResult().success(NoneType().set_pos(node.pos_start, node.pos_end).set_context(context))
 
 
-	def visit_VarAssignNode(self, node, context):
+	def visit_VarAssignNode(self, node, context, reassign=False):
 		res = RTResult()
 		var_name = node.var_name_token.value
 		if var_name in CONSTANTS:
@@ -554,6 +698,18 @@ class Interpreter:
 					"Can't assign to keyword",
 				)
 			)
+
+		if reassign:
+			current = context.symbol_table.get(var_name)
+
+			if current == None:
+				return res.failure(RunTimeError(
+					node.pos_start,
+					node.pos_end,
+					f"'{var_name}' is not defined",
+					context
+				))
+		
 		value = res.register(self.visit(node.value_node, context))
 		if res.error: return res
 		
@@ -561,33 +717,8 @@ class Interpreter:
 		return res.success(value)
 
 	def visit_VarReAssignNode(self, node, context):
-		res = RTResult()
-		var_name = node.var_name_token.value
+		return self.visit_VarAssignNode(node, context, True)
 
-		if var_name in CONSTANTS:
-			return res.failure(
-				InvalidSyntaxError(
-					node.pos_start,
-					node.pos_end,
-					"Can't assign to keyword",
-				)
-			)
-
-		current = context.symbol_table.get(var_name)
-
-		if current == None:
-			return res.failure(RunTimeError(
-				node.pos_start,
-				node.pos_end,
-				f"'{var_name}' is not defined",
-				context
-			))
-
-		value = res.register(self.visit(node.value_node, context))
-		if res.error: return res
-		
-		context.symbol_table.set(var_name, value)
-		return res.success(value)
 
 	def visit_VarAccessNode(self, node, context):
 		res = RTResult()
@@ -685,7 +816,20 @@ class Interpreter:
 
 		func_name = node.var_name_token.value if node.var_name_token else None
 		body_node = node.body_node
-		arg_names = [arg_name.value for arg_name in node.arg_name_tokens]
+		arg_names = []
+		for arg_name in node.arg_name_tokens:
+			if type(arg_name) == tuple:
+				def_token = arg_name[1]
+				if def_token.type == TT_STR:
+					def_val = String(def_token.value)
+				elif def_token.type in (TT_INT, TT_FLOAT):
+					def_val = Number(def_token.value)
+				else:
+					def_val = context.symbol_table.get(def_token.value)
+
+				arg_names.append((arg_name[0].value, def_val))
+			else:
+				arg_names.append(arg_name.value)
 		func_value = Function(func_name, body_node, arg_names).set_context(context).set_pos(node.pos_start, node.pos_end)
 
 		if node.var_name_token:

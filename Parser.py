@@ -596,9 +596,20 @@ class Parser:
 		arg_name_tokens = []
 
 		if self.current_token.type == TT_IDENTIFER:
-			arg_name_tokens.append(self.current_token)
+			arg_name = self.current_token
 			res.register_advancement()
 			self.advance()
+			default_value = None
+			if self.current_token.type == TT_EQ:
+				res.register_advancement()
+				self.advance()
+				default_value = self.current_token
+				res.register_advancement()
+				self.advance()
+			else:
+				pass
+			
+			arg_name_tokens.append((arg_name, default_value) if default_value else arg_name)
 
 			while self.current_token.type == TT_COMMA:
 				res.register_advancement()
@@ -611,7 +622,21 @@ class Parser:
 						"Expected identfier"
 					))
 				
-				arg_name_tokens.append(self.current_token)
+				if self.current_token.type == TT_IDENTIFER:
+					arg_name = self.current_token
+					res.register_advancement()
+					self.advance()
+				if self.current_token.type == TT_EQ:
+					res.register_advancement()
+					self.advance()
+					default_value = self.current_token
+				else:
+					res.register_devancement()
+					self.devance()
+
+				
+				arg_name_tokens.append((arg_name, default_value) if default_value else arg_name)
+				# arg_name_tokens.append(self.current_token)
 				res.register_advancement()
 				self.advance()
 

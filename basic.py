@@ -6,7 +6,7 @@ import string
 import math
 from Lexer import Lexer, Error
 from Parser import Parser
-from Interpreter import Interpreter, SymbolTable, Context, Number, NoneType
+from Interpreter import Interpreter, SymbolTable, Context, Number, NoneType, BuiltInFunction
 
 ##############################################################################################
 # RUN
@@ -23,6 +23,11 @@ global_symbol_table.set("TWO_PI", Number(math.pi*2))
 global_symbol_table.set("HALF_PI", Number(math.pi/2))
 global_symbol_table.set("Infinity", Number(math.inf))
 global_symbol_table.set("None", NoneType())
+global_symbol_table.set("print", BuiltInFunction("print"))
+global_symbol_table.set("input", BuiltInFunction("input"))
+global_symbol_table.set("clear", BuiltInFunction("clear"))
+global_symbol_table.set("int", BuiltInFunction("int"))
+global_symbol_table.set("float", BuiltInFunction("float"))
 
 def run(fn: str, text: str) -> (float, Error):
 	# generate tokens from source with lexical analysis
