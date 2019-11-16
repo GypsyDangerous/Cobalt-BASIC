@@ -44,6 +44,8 @@ class Lexer:
 				self.advance()
 			elif self.current_char == "-":
 				tokens.append(self.make_minus_or_arrow())
+			elif self.current_char == "#":
+				self.skip_comments()
 			elif self.current_char == "*":
 				tokens.append(self.make_double_token("*", TT_MUL, TT_POW))
 			elif self.current_char == "/":
@@ -88,6 +90,12 @@ class Lexer:
 		tokens.append(Token(TT_EOF, pos_start = self.pos))
 
 		return tokens, None
+
+	def skip_comments(self):
+		self.advance()
+		while self.current_char and self.current_char != "#":
+			self.advance()
+		self.advance()
 
 	@property
 	def prev_char(self):
