@@ -95,8 +95,6 @@ class Lexer:
 		
 		tokens.append(Token(TT_EOF, pos_start = self.pos))
 
-		print(tokens)
-
 		return tokens, None
 
 	def skip_comments(self):

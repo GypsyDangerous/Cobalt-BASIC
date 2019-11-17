@@ -732,6 +732,14 @@ class Parser:
 		self.advance()
 
 		arg_name_tokens = []
+		is_dollar_args = False
+
+
+		# checking function arguments
+		if self.current_token.type == TT_DOLLAR:
+			is_dollar_args = True
+			res.register_advancement()
+			self.advance()
 
 		if self.current_token.type == TT_IDENTIFER:
 			def_args = False
@@ -758,6 +766,11 @@ class Parser:
 			while self.current_token.type == TT_COMMA:
 				res.register_advancement()
 				self.advance()
+
+				if self.current_token.type == TT_DOLLAR:
+					is_dollar_args = True
+					res.register_advancement()
+					self.advance()
 
 				if self.current_token.type != TT_IDENTIFER:
 					return res.failure(InvalidSyntaxError(
@@ -815,7 +828,8 @@ class Parser:
 				var_name_token,
 				arg_name_tokens,
 				body,
-				False
+				False,
+				is_dollar_args
 			))
 		
 		if self.current_token.type != TT_NEWLINE:
@@ -850,7 +864,8 @@ class Parser:
 				var_name_token,
 				arg_name_tokens,
 				body,
-				True
+				True,
+				is_dollar_args
 			)
 		)
 
