@@ -395,29 +395,31 @@ class BaseFunction(Value):
 		new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
 		return new_context
 
-	def check_args(self, arg_names, args):
+	def check_args(self, arg_names, args, has_dollar_args=False):
 		res = RTResult()
 		default_args = sum(isinstance(i, tuple) for i in arg_names)
-		if len(args) > len(arg_names):
+
+		if len(args) > len(arg_names) and not has_dollar_args:
 			return res.failure(RunTimeError(
 				self.pos_start,
-         self.pos_end,
+         		self.pos_end,
 				f"{len(args) - len(arg_names)} too many args passed into '{self.name}'",
 				self.context
 			))
 		
-		if len(args) < len(arg_names)-default_args:
+		if len(args) < len(arg_names)-default_args-(1 if has_dollar_args else 0):
 			return res.failure(RunTimeError(
 				self.pos_start,
-         self.pos_end,
+         		self.pos_end,
 				f"{len(arg_names) - len(args)} too few args passed into '{self.name}'",
 				self.context
 			))
 		
-		return res.success(None)
+		return res.success(NoneType())
 
-	def populate_args(self, arg_names, args, exec_ctx):
-		for i in range(len(arg_names)):
+	def populate_args(self, arg_names, args, exec_ctx, has_dollar_args=False):
+		n = 1 if has_dollar_args else 0
+		for i in range(len(arg_names)-n):
 			arg_name = arg_names[i]
 			if type(arg_name) == tuple:
 				default_value = arg_name[1]
@@ -428,27 +430,37 @@ class BaseFunction(Value):
 				arg_value = default_value
 			arg_value.set_context(exec_ctx)
 			exec_ctx.symbol_table.set(arg_name, arg_value)
+		if has_dollar_args:
+			dollar_values = []
+			for i in range(len(arg_names)-1, len(args)):
+				dollar_values.append(args[i])
+			dollar_values = List(dollar_values)
+			dollar_values.set_context(exec_ctx)
+			exec_ctx.symbol_table.set(arg_names[-1], dollar_values)
 
-	def check_and_populate_args(self, arg_names, args, exec_ctx):
+
+
+	def check_and_populate_args(self, arg_names, args, exec_ctx, has_dollar_args=False):
 		res = RTResult()
-		res.register(self.check_args(arg_names, args))
+		res.register(self.check_args(arg_names, args, has_dollar_args))
 		if res.error: return res
-		self.populate_args(arg_names, args, exec_ctx)
-		return res.success(None)
+		self.populate_args(arg_names, args, exec_ctx, has_dollar_args)
+		return res.success(NoneType())
 
 class Function(BaseFunction):
-	def __init__(self, name, body_node, arg_names, should_return_none):
+	def __init__(self, name, body_node, arg_names, should_return_none, has_dollar_args):
 		super().__init__(name)
 		self.body_node = body_node
 		self.arg_names = arg_names
 		self.should_return_none = should_return_none
+		self.has_dollar_args = has_dollar_args
 
 	def execute(self, args):
 		res = RTResult()
 		interpreter = Interpreter()
 
 		new_context = self.generate_new_context()
-		res.register(self.check_and_populate_args(self.arg_names, args, new_context))
+		res.register(self.check_and_populate_args(self.arg_names, args, new_context, self.has_dollar_args))
 		if res.error: return res
 
 		value = res.register(interpreter.visit(self.body_node, new_context))
@@ -456,7 +468,7 @@ class Function(BaseFunction):
 		return res.success(NoneType() if self.should_return_none else value)
 
 	def copy(self):
-		copy = Function(self.name, self.body_node, self.arg_names, self.should_return_none)
+		copy = Function(self.name, self.body_node, self.arg_names, self.should_return_none, self.has_dollar_args)
 		copy.set_context(self.context)
 		copy.set_pos(self.pos_start, self.pos_end)
 		return copy
@@ -594,6 +606,7 @@ class BuiltInFunction(BaseFunction):
 
 	def execute_run(self, exec_ctx):
 		filename = (exec_ctx.symbol_table.get("fn"))
+		print(filename)
 		if not isinstance(filename, String):
 			return RTResult().failure(
 				RunTimeError(
@@ -785,7 +798,6 @@ class Interpreter:
 	def visit_VarReAssignNode(self, node, context):
 		return self.visit_VarAssignNode(node, context, True)
 
-
 	def visit_VarAccessNode(self, node, context):
 		res = RTResult()
 		var_name = node.var_name_token.value
@@ -860,8 +872,6 @@ class Interpreter:
 			List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
 		)
 
-
-
 	def visit_WhileNode(self, node, context):
 		res = RTResult()
 		elements = []
@@ -894,13 +904,12 @@ class Interpreter:
 				arg_names.append((arg_name[0].value, def_val))
 			else:
 				arg_names.append(arg_name.value)
-		func_value = Function(func_name, body_node, arg_names, node.should_return_none).set_context(context).set_pos(node.pos_start, node.pos_end)
+		func_value = Function(func_name, body_node, arg_names, node.should_return_none, node.has_dollar_args).set_context(context).set_pos(node.pos_start, node.pos_end)
 
 		if node.var_name_token:
 			context.symbol_table.set(func_name, func_value)
 
 		return res.success(func_value)
-
 
 	def visit_CallNode(self, node, context):
 		res = RTResult()
