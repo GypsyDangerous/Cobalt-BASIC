@@ -1,4 +1,5 @@
 import basic
+import argparse
 
 print("_"*80)
 print()
@@ -14,35 +15,13 @@ to add more in the future.
 Enjoy!
 ''')
 
-text = '''
-def fizz_buzz(start, end_)
-for i = start to end_:
-let output = ""
-output = output + if i%3==0: "fizz" else: ""
-output = output + if i%5==0: "buzz" else: ""
-output = if output == "": i else: output
-print(output)
-end
-end
-'''
-
-text = '''
-def fizz_buzz(start, end_)
-    for i = start to end_:
-        let output = ""
-        if i%3 == 0:
-            output = output + "fizz"
-        end
-        if i%5 == 0:
-            output = output + "buzz" 
-        end
-        if output == "":
-            output = i
-        end
-        print(output)
-        end
-    end
-'''
+parser = argparse.ArgumentParser()
+parser.add_argument('filename', nargs="*")
+args = parser.parse_args()
+try:
+    fn = f"{str(args.filename[0])}"
+except:
+    fn = None
 
 def print_result(result, error=None):
     if type(result) == tuple:
@@ -56,8 +35,9 @@ def print_result(result, error=None):
             else:
                 print(repr(result))
 
-print_result(basic.run(__name__, 'run("fizzbuzz.cobalt")'))
-while True:
+if fn:
+    print_result(basic.run(__name__, f'run("{fn}")'))
+while not fn:
     text = input("Cobalt > ")
     result, error = basic.run(__name__, text)
     print_result(result, error)

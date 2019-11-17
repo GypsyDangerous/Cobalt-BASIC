@@ -10,22 +10,23 @@ def fizz_buzz(start, end)
         if output == "":
             output = i
         end.
-        print(output)
+        print(i + ":", output)
     end.
 end.
 
 def fib(n) -> if n <= 1: 0 elif n == 2: 1 else: fib(n-1)+fib(n-2)
 
-fizz_buzz(0, 200)
+fizz_buzz(0, 100)
 # testing nested for loops
+print("testing nested for loops")
 for i = 0 to 10:
     for j = 0 to 10:
-        print([i, j])
+        print(i, j)
     end.
 end.
 
 for i = 1 to 16:
-    print([i, fib(i)])
+    print(i, fib(i))
 end.
 
 print(True)

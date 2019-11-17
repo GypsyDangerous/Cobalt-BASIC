@@ -143,6 +143,8 @@ class Number(Value):
 	def added_to(self, other):
 		if isinstance(other, Number):
 			return Number(self.value + other.value).set_context(self.context), None
+		elif isinstance(other, String):
+			return String(str(self.value)+other.value).set_context(self.context), None
 		else:
 			return None, Value.illegal_operation(self, other)
 	
@@ -278,7 +280,6 @@ Number.false = Number(0)
 Number.true.bool = True
 Number.false.bool = True
 
-
 class String(Value):
 	def __init__(self, value):
 		super().__init__()
@@ -389,6 +390,7 @@ class BaseFunction(Value):
 	def __init__(self, name):
 		super().__init__()
 		self.name = name or "<anonymous>"
+		self.has_star_args = False
 	
 	def generate_new_context(self):
 		new_context = Context(self.name, self.context, self.pos_start)
@@ -490,7 +492,7 @@ class BuiltInFunction(BaseFunction):
 		method_name = f"execute_{self.name}"
 		method = getattr(self, method_name, self.no_visit_method)
 
-		res.register(self.check_and_populate_args(method.arg_names, args, exec_ctx))
+		res.register(self.check_and_populate_args(method.arg_names, args, exec_ctx, self.has_star_args))
 		if res.error: return res 
 
 		return_value = res.register(method(exec_ctx))
@@ -501,6 +503,7 @@ class BuiltInFunction(BaseFunction):
 		copy = BuiltInFunction(self.name)
 		copy.set_context(self.context)
 		copy.set_pos(self.pos_start, self.pos_end)
+		copy.has_star_args = self.has_star_args
 		return copy
 
 	def __str__(self):
@@ -513,9 +516,16 @@ class BuiltInFunction(BaseFunction):
 		raise Exception(f"No execute_{self.name} method defined")
 
 	def execute_print(self, exec_ctx):
-		print(str(exec_ctx.symbol_table.get("value")))
+		first = str(exec_ctx.symbol_table.get("value"))
+		others = exec_ctx.symbol_table.get("args")
+		others.elements.insert(0, first)
+		if others.elements == []:
+			print()
+		else:
+			print(*others.elements)
+
 		return RTResult().success(NoneType().set_context(exec_ctx))
-	execute_print.arg_names = [("value", String(""))]
+	execute_print.arg_names = [("value", String("")), "args"]
 
 	def execute_print_ret(self, exec_ctx):
 		val = str(exec_ctx.symbol_table.get("value"))
