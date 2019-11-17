@@ -132,8 +132,9 @@ class NoneType(Value):
 		return str(self)
 
 class Number(Value):
-	def __init__(self, value):
+	def __init__(self, value, is_bool=False):
 		super().__init__()
+		self.bool = is_bool
 		self.value = value
 
 	# Binary Operations 
@@ -250,12 +251,14 @@ class Number(Value):
 		return Number(1 if self.value == 0 else 0).set_context(self.context), None
 
 	def copy(self):
-		copy = Number(self.value)
+		copy = Number(self.value, self.bool)
 		copy.set_pos(self.pos_start, self.pos_end)
 		copy.set_context(self.context)
 		return copy
 
 	def __str__(self):
+		if self.bool:
+			return "True" if self.value == 1 else "False"
 		return str(self.value)
 
 	def __repr__(self):
@@ -272,7 +275,9 @@ class Number(Value):
 
 Number.true = Number(1)
 Number.false = Number(0)
-Number.null = Number(0)
+Number.true.bool = True
+Number.false.bool = True
+
 
 class String(Value):
 	def __init__(self, value):
@@ -431,7 +436,6 @@ class BaseFunction(Value):
 		self.populate_args(arg_names, args, exec_ctx)
 		return res.success(None)
 
-
 class Function(BaseFunction):
 	def __init__(self, name, body_node, arg_names, should_return_none):
 		super().__init__(name)
@@ -589,14 +593,59 @@ class BuiltInFunction(BaseFunction):
 	execute_list.arg_names = ["val"]
 
 	def execute_run(self, exec_ctx):
-		filename = str(exec_ctx.symbol_table.get("fn"))
+		filename = (exec_ctx.symbol_table.get("fn"))
+		if not isinstance(filename, String):
+			return RTResult().failure(
+				RunTimeError(
+        			self.pos_start, 
+					self.pos_end,
+        			"Filename must be string",
+        			exec_ctx
+      		)
+		)
 		import basic
-		with open(filename, "r+") as f:
-			text = f.read()
-			basic.run(filename, text)
+		try:
+			with open(str(filename), "r+") as f:
+				text = f.read()
+		except Exception as e:
+			return RTResult().failure(
+				RunTimeError(
+					self.pos_start,
+					self.pos_end,
+					f"Failed to load script \"{filename}\"\n" + str(e),
+					exec_ctx
+				)
+			)
+		
+		_, error = basic.run(filename, text)
+		
+		if error:
+			return RTResult().failure(
+				RunTimeError(
+					self.pos_start,
+					self.pos_end,
+					f"Failed to finish executing script \"{filename}\"\n" + str(error),
+					exec_ctx
+				)
+			)
 		return RTResult().success(NoneType())
 		
 	execute_run.arg_names = ["fn"]
+
+	def execute_len(self, exec_ctx):
+		lst = exec_ctx.symbol_table.get("list")
+		if isinstance(lst, List):
+			return RTResult().success(Number(len(lst.elements)))
+		else:
+			return RTResult().failure(
+				RunTimeError(
+					lst.pos_start,
+					lst.pos_end,
+					"Item must be a List",
+					exec_ctx
+				)
+			)
+	execute_len.arg_names = ["list"]
 
 ##############################################################################################
 # RUNTIME RESULT
@@ -658,20 +707,28 @@ class Interpreter:
 			result, error = left.floor_dived_to(right)
 		elif node.op_token.type == TT_EE:
 			result, error = left.get_comparison_eq(right)
+			if result: result.bool = True
 		elif node.op_token.type == TT_NE:
 			result, error = left.get_comparison_ne(right)
+			if result: result.bool = True
 		elif node.op_token.type == TT_LT:
 			result, error = left.get_comparison_lt(right)
+			if result: result.bool = True
 		elif node.op_token.type == TT_GT:
 			result, error = left.get_comparison_gt(right)
+			if result: result.bool = True
 		elif node.op_token.type == TT_LTE:
 			result, error = left.get_comparison_lte(right)
+			if result: result.bool = True
 		elif node.op_token.type == TT_GTE:
 			result, error = left.get_comparison_gte(right)
+			if result: result.bool = True
 		elif node.op_token.matches(TT_KEYWORD, 'and'):
 			result, error = left.anded_by(right)
+			if result: result.bool = True
 		elif node.op_token.matches(TT_KEYWORD, 'or'):
 			result, error = left.ored_by(right)
+			if result: result.bool = True
 
 		if error:
 			return res.failure(error)
@@ -695,7 +752,6 @@ class Interpreter:
 
 	def visit_NoneNode(self, node, context):
 		return RTResult().success(NoneType().set_pos(node.pos_start, node.pos_end).set_context(context))
-
 
 	def visit_VarAssignNode(self, node, context, reassign=False):
 		res = RTResult()

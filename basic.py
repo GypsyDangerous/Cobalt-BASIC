@@ -31,6 +31,7 @@ global_symbol_table.set("int", BuiltInFunction("int"))
 global_symbol_table.set("float", BuiltInFunction("float"))
 global_symbol_table.set("list", BuiltInFunction("list"))
 global_symbol_table.set("run", BuiltInFunction("run"))
+global_symbol_table.set("len", BuiltInFunction("len"))
 
 
 def run(fn: str, text: str) -> (float, Error):

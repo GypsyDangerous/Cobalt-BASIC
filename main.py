@@ -44,16 +44,20 @@ def fizz_buzz(start, end_)
     end
 '''
 
-# print(basic.run(__name__, text))
+def print_result(result, error=None):
+    if type(result) == tuple:
+        print_result(result[0], result[1])
+    else:
+        if error:
+            print(error)
+        elif result and repr(result.elements[0]) != "None":
+            if len(result.elements) == 1:
+                print(repr(result.elements[0]))
+            else:
+                print(repr(result))
 
-
+print_result(basic.run(__name__, 'run("fizzbuzz.cobalt")'))
 while True:
     text = input("Cobalt > ")
     result, error = basic.run(__name__, text)
-    if error:
-        print(error)
-    elif result and repr(result.elements[0]) != "None":
-        if len(result.elements) == 1:
-            print(repr(result.elements[0]))
-        else:
-            print(repr(result))
+    print_result(result, error)

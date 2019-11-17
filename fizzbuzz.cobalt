@@ -1,17 +1,31 @@
-def fizz_buzz(start, end_)
-    for i = start to end_:
+def fizz_buzz(start, end)
+    for i = start to end:
         let output = ""
         if i%3 == 0:
             output = output + "fizz"
-        end
+        end.
         if i%5 == 0:
             output = output + "buzz" 
-        end
+        end.
         if output == "":
             output = i
-        end
+        end.
         print(output)
-        end
-    end
+    end.
+end.
+
+def fib(n) -> if n <= 1: 0 elif n == 2: 1 else: fib(n-1)+fib(n-2)
 
 fizz_buzz(0, 200)
+# testing nested for loops
+for i = 0 to 10:
+    for j = 0 to 10:
+        print([i, j])
+    end.
+end.
+
+for i = 1 to 16:
+    print([i, fib(i)])
+end.
+
+print(True)

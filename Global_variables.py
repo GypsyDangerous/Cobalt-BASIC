@@ -23,7 +23,10 @@ KEYWORDS = [
 	"def",
 	"var",
 	"lambda",
-	"end"
+	"end.",
+	"return",
+	"continue",
+	"break"
 ]
 
 CONSTANTS = [

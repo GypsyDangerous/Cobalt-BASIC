@@ -464,7 +464,7 @@ class Parser:
 			if res.error: return res
 			cases.append((condition, statements, True))
 
-			if self.current_token.matches(TT_KEYWORD, "end"):
+			if self.current_token.matches(TT_KEYWORD, "end."):
 				res.register_advancement()
 				self.advance()
 			else:
@@ -502,7 +502,7 @@ class Parser:
 				if res.error: return res
 				else_case = (statements, True)
 
-				if self.current_token.matches(TT_KEYWORD, "end"):
+				if self.current_token.matches(TT_KEYWORD, "end."):
 					res.register_advancement()
 					self.advance()
 				else:
@@ -510,7 +510,7 @@ class Parser:
 						InvalidSyntaxError(
 							self.current_token.pos_start,
 							self.current_token.pos_end,
-							"Expected end"
+							"Expected end."
 						)
 					)
 			else:
@@ -635,12 +635,12 @@ class Parser:
 			body = res.register(self.statements())
 			if res.error: return res
 
-			if not self.current_token.matches(TT_KEYWORD, "end"):
+			if not self.current_token.matches(TT_KEYWORD, "end."):
 				return res.failure(
 					InvalidSyntaxError(
 						self.current_token.pos_start,
 						self.current_token.pos_end,
-						"Expected end"
+						"Expected end."
 					)
 				)
 			
@@ -688,12 +688,12 @@ class Parser:
 			body = res.register(self.statements)
 			if res.error: return res
 
-			if not self.current_token.matches(TT_KEYWORD, "end"):
+			if not self.current_token.matches(TT_KEYWORD, "end."):
 				return res.failure(
 					InvalidSyntaxError(
 						self.current_token.pos_start,
 						self.current_token.pos_end,
-						"Expected end"
+						"Expected end."
 					)
 				)
 			
@@ -841,13 +841,13 @@ class Parser:
 		body = res.register(self.statements())
 		if res.error: return res
 		
-		if not self.current_token.matches(TT_KEYWORD, "end"):
+		if not self.current_token.matches(TT_KEYWORD, "end."):
 			print(self.current_token)
 			return res.failure(
 					InvalidSyntaxError(
 						self.current_token.pos_start,
 						self.current_token.pos_end,
-						"Expected end"
+						"Expected end."
 					)
 				)
 
