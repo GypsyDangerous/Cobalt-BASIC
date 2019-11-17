@@ -733,6 +733,7 @@ class Parser:
 
 		arg_name_tokens = []
 		is_dollar_args = False
+		seen_dollar_args = False
 
 
 		# checking function arguments
@@ -769,6 +770,8 @@ class Parser:
 
 				if self.current_token.type == TT_DOLLAR:
 					is_dollar_args = True
+					seen_pos_start = self.current_token.pos_start.copy()
+					seen_pos_end = self.current_token.pos_end.copy()
 					res.register_advancement()
 					self.advance()
 
@@ -780,6 +783,12 @@ class Parser:
 					))
 				
 				if self.current_token.type == TT_IDENTIFER:
+					if seen_dollar_args:
+						return res.failure(InvalidSyntaxError(
+						seen_pos_start,
+						seen_pos_end,
+						"'$' can't be in the middle of arguments"
+					))
 					arg_name = self.current_token
 					res.register_advancement()
 					self.advance()
@@ -795,6 +804,9 @@ class Parser:
 						res.register_advancement()
 						self.advance()
 						def_args = False
+				if is_dollar_args:
+					seen_dollar_args = True
+					
 
 				arg_name_tokens.append((arg_name, default_value) if default_value else arg_name)
 			if not def_args and def_arg_count > 0:
