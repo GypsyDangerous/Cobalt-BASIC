@@ -42,9 +42,6 @@ class Lexer:
 			elif self.current_char == "+":
 				tokens.append(Token(TT_PLUS, pos_start = self.pos))
 				self.advance()
-			elif self.current_char == "$":
-				tokens.append(Token(TT_DOLLAR, pos_start = self.pos))
-				self.advance()
 			elif self.current_char == "^":
 				tokens.append(Token(TT_POW, pos_start = self.pos))
 				self.advance()

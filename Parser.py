@@ -732,13 +732,13 @@ class Parser:
 		self.advance()
 
 		arg_name_tokens = []
-		is_dollar_args = False
-		seen_dollar_args = False
+		is_star_args = False
+		seen_star_args = False
 
 
 		# checking function arguments
-		if self.current_token.type == TT_DOLLAR:
-			is_dollar_args = True
+		if self.current_token.type == TT_MUL:
+			is_star_args = True
 			res.register_advancement()
 			self.advance()
 
@@ -768,8 +768,8 @@ class Parser:
 				res.register_advancement()
 				self.advance()
 
-				if self.current_token.type == TT_DOLLAR:
-					is_dollar_args = True
+				if self.current_token.type == TT_MUL:
+					is_star_args = True
 					seen_pos_start = self.current_token.pos_start.copy()
 					seen_pos_end = self.current_token.pos_end.copy()
 					res.register_advancement()
@@ -783,7 +783,7 @@ class Parser:
 					))
 				
 				if self.current_token.type == TT_IDENTIFER:
-					if seen_dollar_args:
+					if seen_star_args:
 						return res.failure(InvalidSyntaxError(
 						seen_pos_start,
 						seen_pos_end,
@@ -804,8 +804,8 @@ class Parser:
 						res.register_advancement()
 						self.advance()
 						def_args = False
-				if is_dollar_args:
-					seen_dollar_args = True
+				if is_star_args:
+					seen_star_args = True
 					
 
 				arg_name_tokens.append((arg_name, default_value) if default_value else arg_name)
@@ -841,7 +841,7 @@ class Parser:
 				arg_name_tokens,
 				body,
 				False,
-				is_dollar_args
+				is_star_args
 			))
 		
 		if self.current_token.type != TT_NEWLINE:
@@ -877,7 +877,7 @@ class Parser:
 				arg_name_tokens,
 				body,
 				True,
-				is_dollar_args
+				is_star_args
 			)
 		)
 

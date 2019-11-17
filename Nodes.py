@@ -149,12 +149,12 @@ class WhileNode:
 ###############################################################################################
 
 class FuncDefNode:
-    def __init__(self, var_name_token, arg_name_tokens, body_node, should_return_none, has_dollar_args):
+    def __init__(self, var_name_token, arg_name_tokens, body_node, should_return_none, has_star_args):
         self.var_name_token = var_name_token
         self.arg_name_tokens = arg_name_tokens
         self.body_node = body_node
         self.should_return_none = should_return_none
-        self.has_dollar_args = has_dollar_args
+        self.has_star_args = has_star_args
 
         if self.var_name_token:
             self.pos_start = self.var_name_token.pos_start
