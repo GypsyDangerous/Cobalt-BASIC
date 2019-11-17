@@ -134,9 +134,6 @@ class Parser:
 			self.current_token.pos_end.copy()
 		))
 			
-			
-
-
 	###############################################################################################
 
 	def expr(self):
@@ -428,61 +425,15 @@ class Parser:
 
 ###############################################################################################
 
-	def if_expr_cases(self, kw):
+	def if_expr(self):
+		'''
+		method for parsing 'if-else' expressions
+		'''
 		res = ParseResult()
-		cases = []
-		else_case = None
-
-		if not self.current_token.matches(TT_KEYWORD, kw):
-			return res.failure(InvalidSyntaxError(
-				self.current_token.pos_start, 
-				self.current_token.pos_end,
-				f"Expected '{kw}'"
-			))
-
-		res.register_advancement()
-		self.advance()
-
-		condition = res.register(self.expr())
+		all_cases = res.register(self.if_expr_cases("if"))
 		if res.error: return res
-
-		if not self.current_token.matches(TT_KEYWORD, ":"):
-			return res.failure(InvalidSyntaxError(
-				self.current_token.pos_start, 
-				self.current_token.pos_end,
-				"Expected ':'"
-			))
-
-		res.register_advancement()
-		self.advance()
-
-		if self.current_token.type == TT_NEWLINE:
-			res.register_advancement()
-			self.advance()
-
-			statements = res.register(self.statements())
-			if res.error: return res
-			cases.append((condition, statements, True))
-
-			if self.current_token.matches(TT_KEYWORD, "end."):
-				res.register_advancement()
-				self.advance()
-			else:
-				all_cases = res.register(self.if_expr_b_or_c())
-				if res.error: return res
-				new_cases, else_case = all_cases
-				cases.extend(new_cases)
-		else:
-			expr = res.register(self.expr())
-			if res.error: return res
-			cases.append((condition, expr, False))
-
-			all_cases = res.register(self.if_expr_b_or_c())
-			if res.error: return res
-			new_cases, else_case = all_cases
-			cases.extend(new_cases)
-
-		return res.success((cases, else_case))
+		cases, else_case = all_cases
+		return res.success(IfNode(cases, else_case))
 
 	def if_expr_b(self):
 		return self.if_expr_cases("elif")
@@ -542,18 +493,61 @@ class Parser:
 		
 		return res.success((cases, else_case))
 
-
-	def if_expr(self):
-		'''
-		method for parsing 'if-else' expressions
-		'''
+	def if_expr_cases(self, kw):
 		res = ParseResult()
-		all_cases = res.register(self.if_expr_cases("if"))
-		if res.error: return res
-		cases, else_case = all_cases
-		return res.success(IfNode(cases, else_case))
+		cases = []
+		else_case = None
 
-		
+		if not self.current_token.matches(TT_KEYWORD, kw):
+			return res.failure(InvalidSyntaxError(
+				self.current_token.pos_start, 
+				self.current_token.pos_end,
+				f"Expected '{kw}'"
+			))
+
+		res.register_advancement()
+		self.advance()
+
+		condition = res.register(self.expr())
+		if res.error: return res
+
+		if not self.current_token.matches(TT_KEYWORD, ":"):
+			return res.failure(InvalidSyntaxError(
+				self.current_token.pos_start, 
+				self.current_token.pos_end,
+				"Expected ':'"
+			))
+
+		res.register_advancement()
+		self.advance()
+
+		if self.current_token.type == TT_NEWLINE:
+			res.register_advancement()
+			self.advance()
+
+			statements = res.register(self.statements())
+			if res.error: return res
+			cases.append((condition, statements, True))
+
+			if self.current_token.matches(TT_KEYWORD, "end."):
+				res.register_advancement()
+				self.advance()
+			else:
+				all_cases = res.register(self.if_expr_b_or_c())
+				if res.error: return res
+				new_cases, else_case = all_cases
+				cases.extend(new_cases)
+		else:
+			expr = res.register(self.expr())
+			if res.error: return res
+			cases.append((condition, expr, False))
+
+			all_cases = res.register(self.if_expr_b_or_c())
+			if res.error: return res
+			new_cases, else_case = all_cases
+			cases.extend(new_cases)
+
+		return res.success((cases, else_case))
 
 ###############################################################################################
 
@@ -707,9 +701,6 @@ class Parser:
 
 		return res.success(WhileNode(condition, body, False))
 	
-
-
-
 ###############################################################################################
 
 	def func_def(self):
@@ -862,9 +853,6 @@ class Parser:
 				True
 			)
 		)
-
-		
-
 
 ###############################################################################################
 
