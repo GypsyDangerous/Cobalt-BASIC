@@ -25,6 +25,9 @@ class Lexer:
 		while self.current_char:
 			if self.current_char in ' \t':
 				self.advance() 
+			elif self.current_char in ";\n":
+				tokens.append(Token(TT_NEWLINE, pos_start = self.pos))
+				self.advance()
 			elif self.current_char in LETTERS:
 				tokens.append(self.make_identifier())
 			elif self.current_char == "." and self.next_char not in DIGITS:
@@ -93,7 +96,7 @@ class Lexer:
 
 	def skip_comments(self):
 		self.advance()
-		while self.current_char and self.current_char != "#":
+		while self.current_char and self.current_char not in "#\n":
 			self.advance()
 		self.advance()
 

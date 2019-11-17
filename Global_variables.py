@@ -23,6 +23,7 @@ KEYWORDS = [
 	"def",
 	"var",
 	"lambda",
+	"end"
 ]
 
 CONSTANTS = [
@@ -38,7 +39,7 @@ CONSTANTS = [
 	"input",
 	"clear",
 	"int",
-	"float"
+	"float",
 ]
 
 ##############################################################################################
@@ -72,3 +73,4 @@ TT_STR = "STR"
 TT_LBRACKET = "LBRACKET"
 TT_RBRACKET = "RBRACKET"
 TT_DOT = "DOT"
+TT_NEWLINE = "NEWLINE"

@@ -6,7 +6,8 @@ import string
 import math
 from Lexer import Lexer, Error
 from Parser import Parser
-from Interpreter import Interpreter, SymbolTable, Context, Number, NoneType, BuiltInFunction
+import Interpreter
+Interpreter, SymbolTable, Context, Number, NoneType, BuiltInFunction = Interpreter.Interpreter,  Interpreter.SymbolTable,  Interpreter.Context,  Interpreter.Number,  Interpreter.NoneType,  Interpreter.BuiltInFunction
 
 ##############################################################################################
 # RUN
@@ -29,6 +30,7 @@ global_symbol_table.set("clear", BuiltInFunction("clear"))
 global_symbol_table.set("int", BuiltInFunction("int"))
 global_symbol_table.set("float", BuiltInFunction("float"))
 global_symbol_table.set("list", BuiltInFunction("list"))
+global_symbol_table.set("run", BuiltInFunction("run"))
 
 
 def run(fn: str, text: str) -> (float, Error):
@@ -42,7 +44,7 @@ def run(fn: str, text: str) -> (float, Error):
 
 	# generate an abstract syntax tree by parsing the text, also know as syntax analysis
 	parser = Parser(tokens)
-	ast = parser.parse(global_symbol_table)
+	ast = parser.parse()
 	if ast.error: return None, ast.error
 
 	# interpret the ast

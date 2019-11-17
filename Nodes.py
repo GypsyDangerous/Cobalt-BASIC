@@ -106,18 +106,19 @@ class IfNode:
 		self.else_case = else_case
 
 		self.pos_start = self.cases[0][0].pos_start
-		self.pos_end = (else_case or self.cases[-1][0]).pos_end
+		self.pos_end = (else_case or self.cases[-1])[0].pos_end
 
 # For Loop Node
 ###############################################################################################
 
 class ForNode:
-	def __init__(self, var_name_token, start_value_node, end_value_node, step_value_node, body_node):
+	def __init__(self, var_name_token, start_value_node, end_value_node, step_value_node, body_node, should_return_none):
 		self.var_name_token = var_name_token
 		self.start_value_node = start_value_node
 		self.end_value_node = end_value_node
 		self.step_value_node = step_value_node
 		self.body_node = body_node
+		self.should_return_none = should_return_none
 
 		self.pos_start = self.var_name_token.pos_start
 		self.pos_end = self.body_node.pos_end
@@ -127,9 +128,10 @@ class ForNode:
 ###############################################################################################
 
 class WhileNode:
-	def __init__(self, condition_node, body_node):
+	def __init__(self, condition_node, body_node, should_return_none):
 		self.condition_node = condition_node
 		self.body_node = body_node
+		self.should_return_none = should_return_none
 
 		self.pos_start = condition_node.pos_start
 		self.pos_end = body_node.pos_end
@@ -139,10 +141,11 @@ class WhileNode:
 ###############################################################################################
 
 class FuncDefNode:
-	def __init__(self, var_name_token, arg_name_tokens, body_node):
+	def __init__(self, var_name_token, arg_name_tokens, body_node, should_return_none):
 		self.var_name_token = var_name_token
 		self.arg_name_tokens = arg_name_tokens
 		self.body_node = body_node
+		self.should_return_none = should_return_none
 
 		if self.var_name_token:
 			self.pos_start = self.var_name_token.pos_start

@@ -304,10 +304,10 @@ class String(Value):
 			return Number(0), None
 
 	def __str__(self):
-		return f'"{self.value}"'
+		return f'{self.value}'
 	
 	def __repr__(self):
-		return str(self)
+		return f'"{str(self)}"'
 
 class List(Value):
 	def __init__(self, elements):
@@ -433,10 +433,11 @@ class BaseFunction(Value):
 
 
 class Function(BaseFunction):
-	def __init__(self, name, body_node, arg_names):
+	def __init__(self, name, body_node, arg_names, should_return_none):
 		super().__init__(name)
 		self.body_node = body_node
 		self.arg_names = arg_names
+		self.should_return_none = should_return_none
 
 	def execute(self, args):
 		res = RTResult()
@@ -448,10 +449,10 @@ class Function(BaseFunction):
 
 		value = res.register(interpreter.visit(self.body_node, new_context))
 		if res.error: return res
-		return res.success(value)
+		return res.success(NoneType() if self.should_return_none else value)
 
 	def copy(self):
-		copy = Function(self.name, self.body_node, self.arg_names)
+		copy = Function(self.name, self.body_node, self.arg_names, self.should_return_none)
 		copy.set_context(self.context)
 		copy.set_pos(self.pos_start, self.pos_end)
 		return copy
@@ -586,6 +587,16 @@ class BuiltInFunction(BaseFunction):
 				)
 			)
 	execute_list.arg_names = ["val"]
+
+	def execute_run(self, exec_ctx):
+		filename = str(exec_ctx.symbol_table.get("fn"))
+		import basic
+		with open(filename, "r+") as f:
+			text = f.read()
+			basic.run(filename, text)
+		return RTResult().success(NoneType())
+		
+	execute_run.arg_names = ["fn"]
 
 ##############################################################################################
 # RUNTIME RESULT
@@ -738,21 +749,22 @@ class Interpreter:
 	def visit_IfNode(self, node, context):
 		res = RTResult()
 
-		for condition, expr in node.cases:
+		for condition, expr, should_return_none in node.cases:
 			condition_value = res.register(self.visit(condition, context))
 			if res.error: return res 
 			
 			if condition_value.is_true():
 				expr_value = res.register(self.visit(expr, context))
 				if res.error: return res
-				return res.success(expr_value)
+				return res.success(NoneType() if should_return_none else expr_value)
 
 		if node.else_case:
-			else_value = res.register(self.visit(node.else_case, context))
+			expr, should_return_none = node.else_case
+			else_value = res.register(self.visit(expr, context))
 			if res.error: return res
-			return res.success(else_value)
+			return res.success(NoneType() if should_return_none else else_value)
 
-		return res.success(None)
+		return res.success(NoneType())
 
 	def visit_ForNode(self, node, context):
 		res = RTResult()
@@ -788,6 +800,7 @@ class Interpreter:
 			if res.error: return res
 
 		return res.success(
+			NoneType() if node.should_return_none else
 			List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
 		)
 
@@ -807,6 +820,7 @@ class Interpreter:
 			if res.error: return res
 
 		return result.success(
+			NoneType() if node.should_return_none else
 			List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
 		)
 
@@ -818,20 +832,13 @@ class Interpreter:
 		arg_names = []
 		for arg_name in node.arg_name_tokens:
 			if type(arg_name) == tuple:
-				# def_token = arg_name[1]
-				# if def_token.type == TT_STR:
-				# 	def_val = String(def_token.value)
-				# elif def_token.type in (TT_INT, TT_FLOAT):
-				# 	def_val = Number(def_token.value)
-				# else:
-				# 	def_val = context.symbol_table.get(def_token.value)
 				def_val = res.register(self.visit(arg_name[1], context))
 				if res.error: return res
 
 				arg_names.append((arg_name[0].value, def_val))
 			else:
 				arg_names.append(arg_name.value)
-		func_value = Function(func_name, body_node, arg_names).set_context(context).set_pos(node.pos_start, node.pos_end)
+		func_value = Function(func_name, body_node, arg_names, node.should_return_none).set_context(context).set_pos(node.pos_start, node.pos_end)
 
 		if node.var_name_token:
 			context.symbol_table.set(func_name, func_value)
