@@ -318,7 +318,7 @@ class Parser:
 
 		elif token.type == TT_LPAREN:
 			try:
-				anon_func = self.prev_token().type in (TT_LPAREN, TT_EQ, TT_COMMA, TT_EO)
+				anon_func = self.prev_token().type in (TT_LPAREN, TT_EQ, TT_COMMA, TT_EOF)
 			except:
 				anon_func = False
 			
