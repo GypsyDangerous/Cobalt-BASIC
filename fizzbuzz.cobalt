@@ -15,4 +15,6 @@ def fizz_buzz(words, tests, *range)
     print("FizzBuzz Complete!")
 end.
 
-fizz_buzz(["fizz", "buzz", "biff"], [3, 5, 7], 0, 100)
+let end = int(input("input ending value: "))
+
+fizz_buzz(["fizz", "buzz", "biff"], [3, 5, 7], 0, end)

@@ -305,6 +305,20 @@ class String(Value):
 			return String(self.value*other.value).set_context(self.context), None
 		else:
 			return None, Value.illegal_operation(self, other)
+
+	def dived_by(self, other):
+		if isinstance(other, Number):
+			try:
+				return String(self.value[other.value]), None
+			except:
+				return None, RunTimeError(
+					other.pos_start,
+					other.pos_end,
+					"Invalid Index",
+					self.context
+				)
+		else:
+			return None, Value.illegal_operation(self, other)
 	
 	def is_true(self):
 		return len(self.value) > 0
@@ -547,14 +561,14 @@ class BuiltInFunction(BaseFunction):
 
 	def execute_input(self, exec_ctx):
 		import re
-		prompt = re.sub(r"['\"]", "", str(exec_ctx.symbol_table.get("str")))
+		prompt = str(exec_ctx.symbol_table.get("str"))
 		text = input(prompt or "")
 		return RTResult().success(String(text))
 	execute_input.arg_names = [("str", String(""))]
 
 	def execute_input_int(self, exec_ctx):
 		import re
-		prompt = re.sub(r"['\"]", "", str(exec_ctx.symbol_table.get("str")))
+		prompt = str(exec_ctx.symbol_table.get("str"))
 		while True:
 			try:
 				text = int(input(prompt or ""))
@@ -671,12 +685,14 @@ class BuiltInFunction(BaseFunction):
 		lst = exec_ctx.symbol_table.get("list")
 		if isinstance(lst, List):
 			return RTResult().success(Number(len(lst.elements)))
+		elif isinstance(lst, String):
+			return RTResult().success(Number(len(lst.value)))
 		else:
 			return RTResult().failure(
 				RunTimeError(
 					lst.pos_start,
 					lst.pos_end,
-					"Item must be a List",
+					f"{lst} is not Iterable",
 					exec_ctx
 				)
 			)
