@@ -1,32 +1,18 @@
-def fizz_buzz(start, end)
-    for i = start to end:
+def fizz_buzz(words, tests, *range)
+    let step_val = if len(range) == 3: range/2 else: 1
+    for i = range/0 to range/1 step step_val:
         let output = ""
-        if i%3 == 0:
-            output = output + "fizz"
+        for j = 0 to len(tests):
+            let number = tests/j
+            let word = words/j
+            if i%number == 0:
+                output = output + word
+            end.
         end.
-        if i%5 == 0:
-            output = output + "buzz" 
-        end.
-        if output == "":
-            output = i
-        end.
-        print(i + ":", output)
+        output = if output == "": i else: output
+        print(i+":", output)
     end.
+    print("FizzBuzz Complete!")
 end.
 
-def fib(n) -> if n <= 1: 0 elif n == 2: 1 else: fib(n-1)+fib(n-2)
-
-fizz_buzz(0, 100)
-# testing nested for loops
-print("testing nested for loops")
-for i = 0 to 10:
-    for j = 0 to 10:
-        print(i, j)
-    end.
-end.
-
-for i = 1 to 16:
-    print(i, fib(i))
-end.
-
-print(True)
+fizz_buzz(["fizz", "buzz", "biff"], [3, 5, 7], 0, 100)

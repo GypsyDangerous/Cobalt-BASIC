@@ -6,7 +6,6 @@ from Errors import *
 # LEXER
 ##############################################################################################
 
-
 class Lexer:
 	def __init__(self, fn, text):
 		self.fn = fn
@@ -199,7 +198,6 @@ class Lexer:
 		
 		tok_type = TT_KEYWORD if id_str in KEYWORDS else TT_IDENTIFER
 		return Token(tok_type, id_str, pos_start, self.pos)
-
 
 	def make_number(self, digits = "e-+"):
 		num_str = ""

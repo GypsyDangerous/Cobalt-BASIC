@@ -35,6 +35,15 @@ class Context:
 		self.parent_entry_pos = parent_entry_pos
 		self.symbol_table = None
 
+	def get(self, name):
+		return self.symbol_table.get(name)
+
+	def set(self, name, value):
+		self.symbol_table.set(name, value)
+
+	def remove(self, name):
+		self.symbol_table.remove(name)
+
 ##############################################################################################
 # VALUES
 ##############################################################################################
@@ -391,6 +400,10 @@ class BaseFunction(Value):
 		super().__init__()
 		self.name = name or "<anonymous>"
 		self.has_star_args = False
+	
+	def star_args(self):
+		self.has_star_args = True
+		return self
 	
 	def generate_new_context(self):
 		new_context = Context(self.name, self.context, self.pos_start)

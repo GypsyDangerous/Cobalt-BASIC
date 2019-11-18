@@ -24,16 +24,13 @@ global_symbol_table.set("TWO_PI", Number(math.pi*2))
 global_symbol_table.set("HALF_PI", Number(math.pi/2))
 global_symbol_table.set("Infinity", Number(math.inf))
 global_symbol_table.set("None", NoneType())
-Print = BuiltInFunction("print")
-Print.has_star_args = True
-global_symbol_table.set("print", Print)
+global_symbol_table.set("print", BuiltInFunction("print").star_args())
 global_symbol_table.set("input", BuiltInFunction("input"))
 global_symbol_table.set("clear", BuiltInFunction("clear"))
 global_symbol_table.set("int", BuiltInFunction("int"))
 global_symbol_table.set("float", BuiltInFunction("float"))
 global_symbol_table.set("list", BuiltInFunction("list"))
 global_symbol_table.set("run", BuiltInFunction("run"))
-
 global_symbol_table.set("len", BuiltInFunction("len"))
 
 
