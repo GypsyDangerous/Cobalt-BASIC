@@ -629,8 +629,10 @@ class BuiltInFunction(BaseFunction):
 	def execute_list(self, exec_ctx):
 		val = exec_ctx.symbol_table.get("val")
 		try:
-			return RTResult().success(list(val.value))
+			return RTResult().success(List(list(val.value)))
 		except:
+			if type(val) == List:
+				return RTResult().success(val)
 			return RTResult().failure(
 				RunTimeError(
 					val.pos_start,
@@ -639,7 +641,7 @@ class BuiltInFunction(BaseFunction):
 					exec_ctx
 				)
 			)
-	execute_list.arg_names = ["val"]
+	execute_list.arg_names = [("val", List([]))]
 
 	def execute_run(self, exec_ctx):
 		filename = (exec_ctx.symbol_table.get("fn"))
