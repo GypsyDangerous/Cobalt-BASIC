@@ -629,7 +629,6 @@ class BuiltInFunction(BaseFunction):
 
 	def execute_run(self, exec_ctx):
 		filename = (exec_ctx.symbol_table.get("fn"))
-		print(filename)
 		if not isinstance(filename, String):
 			return RTResult().failure(
 				RunTimeError(
