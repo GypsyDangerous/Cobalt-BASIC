@@ -332,6 +332,42 @@ class String(Value):
 		else:
 			return Number(0), None
 
+	def get_comparison_ne(self, other):
+		if isinstance(other, String):
+			return Number(int(self.value != other.value)), None
+		else:
+			return Number(1), None
+
+	def get_comparison_lt(self, other):
+		try:
+			return Number(int(self.value < other.value)), None
+		except:
+			return Number(0), None
+
+	def get_comparison_gt(self, other):
+		try:
+			return Number(int(self.value > other.value)), None
+		except:
+			return Number(0), None
+
+	def get_comparison_lte(self, other):
+		try:
+			return Number(int(self.value <= other.value)), None
+		except:
+			return Number(0), None
+
+	def get_comparison_gte(self, other):
+		try:
+			return Number(int(self.value >= other.value)), None
+		except:
+			return Number(0), None
+
+	def anded_by(self, other):
+		return (self if other.is_true() else Number(0)), None
+
+	def ored_by(self, other):
+		return self, None
+
 	def __str__(self):
 		return f'{self.value}'
 	
@@ -395,7 +431,10 @@ class List(Value):
 			return Number(0), None
 
 	def get_comparison_ne(self, other):
-		return self.get_comparison_eq(other)[0].notted(), None
+		if isinstance(other, List):
+			return Number(int(self.elements != other.elements)), None
+		else:
+			return Number(1), None
 
 	def get_comparison_lt(self, other):
 		return Number(int(self.elements < other.elements)), None
