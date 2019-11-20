@@ -87,7 +87,7 @@ class Value:
 		return Number(int(type(self).__name__ == type(other).__name__)), None
 
 	def get_comparison_ne(self, other):
-		return None, self.illegal_operation(other)
+		return Number(int(type(self).__name__ != type(other).__name__)), None
 
 	def get_comparison_lt(self, other):
 		return None, self.illegal_operation(other)
@@ -336,7 +336,7 @@ class String(Value):
 		return f'{self.value}'
 	
 	def __repr__(self):
-		return f'"{str(self)}"'
+		return f'"{self.value}"'
 
 class List(Value):
 	def __init__(self, elements):
@@ -393,6 +393,27 @@ class List(Value):
 			return Number(int(self.elements == other.elements)), None
 		else:
 			return Number(0), None
+
+	def get_comparison_ne(self, other):
+		return self.get_comparison_eq(other)[0].notted(), None
+
+	def get_comparison_lt(self, other):
+		return Number(int(self.elements < other.elements)), None
+
+	def get_comparison_gt(self, other):
+		return Number(int(self.elements > other.elements)), None
+
+	def get_comparison_lte(self, other):
+		return Number(int(self.elements <= other.elements)), None
+
+	def get_comparison_gte(self, other):
+		return Number(int(self.elements >= other.elements)), None
+
+	def anded_by(self, other):
+		return (self if other.is_true() else Number(0)), None
+
+	def ored_by(self, other):
+		return self, None
 
 	def __eq__(self, other):
 		try:
@@ -563,7 +584,7 @@ class BuiltInFunction(BaseFunction):
 		import re
 		prompt = str(exec_ctx.symbol_table.get("str"))
 		text = input(prompt or "")
-		return RTResult().success(String(text))
+		return RTResult().success(String(text).set_context(exec_ctx).set_pos(exec_ctx.parent_entry_pos, exec_ctx.parent_entry_pos))
 	execute_input.arg_names = [("str", String(""))]
 
 	def execute_input_int(self, exec_ctx):
@@ -597,8 +618,8 @@ class BuiltInFunction(BaseFunction):
 				return RTResult().success(Number(int(val.value)))
 			except:
 				return RTResult().failure(RunTimeError(
-				val.pos_start,
-				val.pos_end,
+				val.pos_start or 0,
+				val.pos_end or 0,
 				f"Invalid literal for int() with base 10: {val}",
 				exec_ctx
 			))
@@ -629,7 +650,8 @@ class BuiltInFunction(BaseFunction):
 	def execute_list(self, exec_ctx):
 		val = exec_ctx.symbol_table.get("val")
 		try:
-			return RTResult().success(List(list(val.value)))
+			result = [String(i) for i in val.value]
+			return RTResult().success(List(result))
 		except:
 			if type(val) == List:
 				return RTResult().success(val)
@@ -699,6 +721,39 @@ class BuiltInFunction(BaseFunction):
 				)
 			)
 	execute_len.arg_names = ["list"]
+
+	def execute_str(self, exec_ctx):
+		item = exec_ctx.symbol_table.get("item")
+		try:
+			return RTResult().success(String(str(item)))
+		except:
+			pass
+		if isinstance(item, Number):
+			return RTResult().success(String(str(item.value)))
+		elif isinstance(item, List):
+			return RTResult().success(String(str(item.elements)))
+		elif isinstance(item, String):
+			return RTResult().success(item)
+		else:
+			return RTResult().success(NoneType())
+	execute_str.arg_names = [("item", String(""))]
+
+	def execute_reverse(self, exec_ctx):
+		val = exec_ctx.symbol_table.get("val")
+		if isinstance(val, List):
+			return RTResult().success(List(val.elements[::-1]))
+		elif isinstance(val, String):
+			return RTResult().success(String((val.value[::-1])))
+		else:
+			return RTResult().failure(
+				RunTimeError(
+					val.pos_start,
+					val.pos_end,
+					f"type '{type(val).__name__}' is not iterable",
+					exec_ctx
+				)
+			)
+	execute_reverse.arg_names = ["val"]
 
 ##############################################################################################
 # RUNTIME RESULT

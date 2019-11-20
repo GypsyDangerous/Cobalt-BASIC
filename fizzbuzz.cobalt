@@ -15,6 +15,20 @@ def fizz_buzz(words, tests, *range)
     print("FizzBuzz Complete!")
 end.
 
+def join(elements, separator=" ")
+    let result = ""
+    let Len = len(elements)
+
+    for i = 0 to Len:
+        result = result + elements/i
+        if i != Len - 1: result = result + separator
+    end.
+
+    print(result)
+end.
+
 let end = int(input("input ending value: "))
 
 fizz_buzz(["fizz", "buzz", "biff"], [3, 5, 7], 0, end)
+
+#join(list("david"))
