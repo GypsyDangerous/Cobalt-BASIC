@@ -27,7 +27,6 @@ The Native Objects in Cobalt are:
  - **List** - an array of 1 or more objects
  - **NoneType** - same as python NoneType
 
-
 ## Constants
 Cobalt has a quite a few built in constants, they are:
  - **True** - boolean True (Number 1)
@@ -39,8 +38,15 @@ Cobalt has a quite a few built in constants, they are:
  - **HALF_PI** - Number PI/2
  - **Infinity** - Number `python math.inf`
 
-
-
+## Built in Functions
+ - **print** - same as python print or js console.log
+ - **len** - same as python len
+ - **input** - same as python input
+ - **run** - used to run external files. usage `run(filename)`
+ - **int** - converts compatible item to an integer
+ - **float** - converts a compatible item to an integer
+ - **list** - converts an iterable (currently only string or list) to list, returns empty list if nothing is passed in
+ - **clear** - clears the terminal
 
 ## end. keyword
 The `end.` keyword is required for ending any multiline statement like functions, conditionals, and loops

@@ -35,7 +35,6 @@ global_symbol_table.set("len", BuiltInFunction("len"))
 global_symbol_table.set("str", BuiltInFunction("str"))
 global_symbol_table.set("reverse", BuiltInFunction("reverse"))
 
-
 def run(fn: str, text: str) -> (float, Error):
 	# generate tokens from source with lexical analysis
 	lexer = Lexer(fn, text)
@@ -43,9 +42,9 @@ def run(fn: str, text: str) -> (float, Error):
 	if error: return None, error
 
 	if len(tokens) <= 1:
-		return None, error
+		return None, None
 
-	# generate an abstract syntax tree by parsing the text, also know as syntax analysis
+	# generate an abstract syntax tree by parsing the text, also known as syntax analysis
 	parser = Parser(tokens)
 	ast = parser.parse()
 	if ast.error: return None, ast.error
