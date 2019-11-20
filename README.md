@@ -13,7 +13,7 @@ Cobalt BASIC is a simple, dynamically typed, interpreted programming language wi
 - Contains all the code the actual programming language, including the `lexer`, `parser`, and `interpreter`
 - imports string_with_arrows.py, Token.py, Nodes.py, Lexer.py, Errors.py, and Parser.py
 ### string_with_arrows.py
-- Contains a single method called `string_with_arrows`, for inserting `^` characters where an error appears in my programming language
+- Contains a single method called `string_with_arrows`, for inserting `^` characters where an error appears in the code
 ### Token.py 
 - Contains the Token class and all token type constants used in the language
 ### Global_variables.py
