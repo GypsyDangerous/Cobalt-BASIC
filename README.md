@@ -3,7 +3,7 @@
  <a href="https://gypsydangerous.github.io/Cobalt-BASIC/" target="_blank"><img src="icon.png" width=50 height=50 alt="Icon"></img></a>
 </html>
 
-Cobalt BASIC is a simple programming language with syntax inspired by python and javascript with an aim for readability and understandablility. It is not the fastest langauge ever because it is interpreted by python, but it will get the job done for simple tasks
+Cobalt BASIC is a simple, dynamically typed, interpreted programming language with syntax inspired by python and javascript with an aim for readability and understandablility. It is not the fastest langauge ever because it is interpreted by python, but it will get the job done for simple tasks
 ## Files
 ---
  ### main.py 
@@ -38,6 +38,9 @@ Contians all these classes
 ### Errors.py
 - Contains the Error class and all subclasses
 ---
+
+## Prerequisites
+Python 3.6 or greater
         
 
 ## Installation
