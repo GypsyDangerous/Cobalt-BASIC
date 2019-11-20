@@ -51,15 +51,18 @@ Currently this project can be run from any python environmment with no special i
 - [x] add strings
 - [x] add lists
 - [x] fix variable reassignment
-- [ ] add built in functions
-- [ ] add multi-line code compatability
+- [x] add built in functions
+- [x] add multi-line code compatability
 - [ ] add return statement
 - [ ] add iterative for loops
 - [x] add default arguments to functions
-- [ ] add args and kwargs to functions
-- [ ] improve anonymous functions
+- [x] add *args functions
+- [x] improve anonymous functions
 - [ ] add try/except
 - [ ] improve lists
+- [ ] allow custom object creation
+- [ ] add operator overloading to custom objects
+- [ ] 
 
 ## Credits
 The base of this code was written while following this [tutorial series](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) on youtube. I have added some of my own features and syntax. I plan to go beyond this tutorial series and add even more features as I learn more about this topic.
