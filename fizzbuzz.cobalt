@@ -17,4 +17,4 @@ end.
 
 let end = int(input("input ending value: "))
 
-fizz_buzz(["fizz", "buzz", "biff"], [3, 5, 7], 0, end)
+fizz_buzz(["fizz", "buzz", "biff", "buff"], [3, 5, 7, 2], 0, end)
