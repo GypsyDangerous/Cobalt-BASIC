@@ -24,8 +24,10 @@ def join(elements, separator=" ")
         if i != Len - 1: result = result + separator
     end.
 
-    print(result)
+    return (result)
 end.
+
+print(join(list("david"), ", "))
 
 let end = int(input("input ending value: "))
 
