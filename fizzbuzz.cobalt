@@ -27,6 +27,18 @@ def join(elements, separator=" ")
     return (result)
 end.
 
+def test(n, callback)
+  return n*callback(n)
+end.
+
+print(test(5, (n)
+    if n%2 == 0: 
+      return n**2
+    else
+      return n**3
+    end.
+end.))
+
 print(join(list("david"), ", "))
 
 let end = int(input("input ending value: "))
