@@ -1,6 +1,11 @@
 Cobalt BASIC grammar rules
 
-statement	: newline* expr (newline+ expr)* newline*
+statements	: newline* statement (newline+ statement)* newline*
+
+statement	: return
+			: continue
+			: break
+			: expr
 
 expr        : KEYWORD:(let|var) IDENTIFIER EQ expr
             : comp-expr ((and|or) comp-expr)
@@ -30,25 +35,25 @@ atom 		: INT|FLOAT|STRING|IDENTIFIER
 list-expr	: LBRACKET (expr (COMMA expr)*)? RBRACKET
 
 if-expr		: KEYWORD:if expr KEYWORD:THEN
-			  (expr if-expr-b|if-expr-c?)
+			  (statement if-expr-b|if-expr-c?)
 			  (newline statements KEYWORD:end|if-expr-b|if-expr-c)
 
 if-expr-b	: KEYWORD:elif expr KEYWORD:':'
-			  (expr if-expr-b|if-expr-c?)
+			  (statement if-expr-b|if-expr-c?)
 			  (newline statements KEYWORD:end|if-expr-b|if-expr-c)
 
 if-expr-c	: KEYWORD:else
-			  expr
+			  statement
 			  (newline statements KEYWORD:end)
 			
 
 for-expr	: KEYWORD:FOR IDENTIFIER EQ expr KEYWORD:TO expr 
 			  (KEYWORD:STEP expr)? KEYWORD:THEN
-			  expr
+			  statement
 			  (newline statements KEYWORD:end)
 
 while-expr	: KEYWORD:WHILE expr KEYWORD:THEN 
-			  expr
+			  statement
 			  (newline statements KEYWORD:end)
 
 func-def	: KEYWORD def IDENTIFIER?

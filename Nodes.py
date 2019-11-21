@@ -149,11 +149,11 @@ class WhileNode:
 ###############################################################################################
 
 class FuncDefNode:
-    def __init__(self, var_name_token, arg_name_tokens, body_node, should_return_none, has_star_args):
+    def __init__(self, var_name_token, arg_name_tokens, body_node, should_auto_return, has_star_args):
         self.var_name_token = var_name_token
         self.arg_name_tokens = arg_name_tokens
         self.body_node = body_node
-        self.should_return_none = should_return_none
+        self.should_auto_return = should_auto_return
         self.has_star_args = has_star_args
 
         if self.var_name_token:
@@ -188,3 +188,20 @@ class ListNode:
 
         self.pos_start = pos_start
         self.pos_end = pos_end
+
+class ReturnNode:
+    def __init__(self, node, pos_start, pos_end):
+        self.return_node = node
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+
+class ContinueNode:
+    def __init__(self, pos_start, pos_end):
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+
+class BreakNode:
+    def __init__(self, pos_start, pos_end):
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+    
