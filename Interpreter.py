@@ -366,7 +366,7 @@ class String(Value):
 		return (self if other.is_true() else Number(0)), None
 
 	def ored_by(self, other):
-		return self, None
+		return (self if self.is_true() else other), None
 
 	def __str__(self):
 		return f'{self.value}'
@@ -418,6 +418,11 @@ class List(Value):
 	def multed_by(self, other):
 		if isinstance(other, List):
 			return List(self.elements+other.elements).set_pos(self.pos_start, self.pos_end).set_context(self.context), None
+		elif isinstance(other, Number):
+			new = self.elements.copy()
+			for i in range(other.value-1):
+				new += self.elements.copy()
+			return List(new).set_pos(self.pos_start, self.pos_end).set_context(self.context), None
 		else:
 			return None, Value.illegal_operation(self, other)
 	
@@ -452,7 +457,7 @@ class List(Value):
 		return (self if other.is_true() else Number(0)), None
 
 	def ored_by(self, other):
-		return self, None
+		return (self if self.is_true() else other), None
 
 	def __eq__(self, other):
 		try:
@@ -621,8 +626,9 @@ class BuiltInFunction(BaseFunction):
 
 	def execute_input(self, exec_ctx):
 		import re
-		prompt = str(exec_ctx.symbol_table.get("str"))
-		text = input(prompt or "")
+		prompt = "Cobalt > "
+		prompt = prompt + (str(exec_ctx.symbol_table.get("str")))
+		text = input(prompt)
 		return RTResult().success(String(text).set_context(exec_ctx).set_pos(exec_ctx.parent_entry_pos, exec_ctx.parent_entry_pos))
 	execute_input.arg_names = [("str", String(""))]
 
