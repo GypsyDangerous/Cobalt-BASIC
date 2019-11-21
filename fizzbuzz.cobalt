@@ -29,10 +29,5 @@ end.
 
 let end = int(input("input ending value: "))
 
-<<<<<<< HEAD
-fizz_buzz(["fizz", "buzz", "biff"], [3, 5, 7], 0, end)
-
-#join(list("david"))
-=======
 fizz_buzz(["fizz", "buzz", "biff", "buff"], [3, 5, 7, 2], 0, end)
->>>>>>> d7f1ea2a0493d647435f3b518b0dc7a18445d77b
+
