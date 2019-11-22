@@ -27,16 +27,19 @@ def join(elements, separator=" ")
     return (result)
 end.
 
-def f(msg, *n)
-    print(msg)
-    let r = n/0
-    for i = 1 to len(n):
-        r = r*(n/i)
-    end.
-    return r
+def test(n, callback)
+  return n*callback(n)
 end.
 
-print(f("hello world", 2, 4, 6, 8, 10))
+print(test(5, (n)
+    if n%2 == 0: 
+      return n**2
+    else
+      return n**3
+    end.
+end.))
+
+print(join(list("david"), ", "))
 
 let end = int(input("input ending value: "))
 
